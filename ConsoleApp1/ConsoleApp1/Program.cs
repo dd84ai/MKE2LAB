@@ -525,7 +525,7 @@ namespace _5sem_4islemetod_RGR
                     }
                 }
             }
-            static double[] test;
+            //static double[] test;
             static void generating_global_matrix()
             {
                 G_left_filling_default(); if (debug) Show_matrix(G_left);
@@ -1001,14 +1001,14 @@ namespace _5sem_4islemetod_RGR
         static void Show_three_elements_from_vector(double[] Target_vector)
         {
             Console.WriteLine("===Vector-begin===");
-            for (int i = 0; (i < 3) && (i < Target_vector.Count()); i++)
-                Console.WriteLine("{0:G4}", Target_vector[i]);
+            //for (int i = 0; (i < 3) && (i < Target_vector.Count()); i++)
+            for (int i = 0; (i < 6) && (i < Target_vector.Count()); i++)
+                Console.WriteLine("{0:E8}", Target_vector[i]);
             Console.WriteLine("===Vector-end===");
         }
 
         static void Main()
         {
-            int x_counting = 2, y_counting = 2;
             Finite_Element_Method W1 = new Finite_Element_Method();
             //Finite_Element_Method W1 = new Finite_Element_Method(1 + x_counting, y_counting, 1);
             //Finite_Element_Method W2 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting,2.0)),Convert.ToInt32(Math.Pow(y_counting,2.0)),2);
@@ -1045,7 +1045,7 @@ namespace _5sem_4islemetod_RGR
                     // Process the list of files found in the directory.
                     var fileEntries = Directory.GetFiles(TargetPath);
 
-                    int Choice = random.Next(1, 328);
+                    int Choice = random.Next(1, fileEntries.Count());
                     if (fileEntries.Count() != 0 && fileEntries[Choice].Contains(".wav"))
                         if (true)
                         {
