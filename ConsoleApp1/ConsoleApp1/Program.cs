@@ -1033,27 +1033,40 @@ namespace _5sem_4islemetod_RGR
                 Colorator("Press Escape to exit.", ConsoleColor.Magenta);
                 Console.ReadKey();
             }
+            public static string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            public static Random random = new Random();
             public void SaySomeQuote()
             {
-                Random random = new Random();
-                int randomNumber = random.Next(1, 385);
-                string music_name = "1 (" + randomNumber.ToString() + ").wav";
-                string music_path = @"D:\%Novoselov\Temp\";
-                string music_full_path = music_path + @music_name;
-                if (true)
-                {
-                    Colorator("Activating music file: " + music_full_path, ConsoleColor.Yellow);
-                    System.Media.SoundPlayer sp = new System.Media.SoundPlayer(music_full_path);
-                    try { sp.Play(); Colorator("Music file " + music_full_path + " has been found. ", ConsoleColor.Green); }
-                    catch (Exception)
-                    {
-                        Console.WriteLine();
-                        for (int i = 0; i < 3; i++)
-                            Colorator("Music file " + music_full_path + " is not found!!! ", ConsoleColor.Red);
+                string TargetPath = ProjectPath + "\\" + "Music" + "\\";
 
-                    }
+                if (Directory.Exists(@TargetPath))
+                {
+
+                    // Process the list of files found in the directory.
+                    var fileEntries = Directory.GetFiles(TargetPath);
+
+                    int Choice = random.Next(1, 328);
+                    if (fileEntries.Count() != 0 && fileEntries[Choice].Contains(".wav"))
+                        if (true)
+                        {
+                            Colorator("Activating music file: " + fileEntries[Choice], ConsoleColor.Yellow);
+                            System.Media.SoundPlayer sp = new System.Media.SoundPlayer(fileEntries[Choice]);
+                            try { sp.Play(); Colorator("Music file " + fileEntries[Choice] + " has been found. ", ConsoleColor.Green); }
+                            catch (Exception)
+                            {
+                                Console.WriteLine();
+                                for (int i = 0; i < 3; i++)
+                                    Colorator("Music file " + fileEntries[Choice] + " is not found!!! ", ConsoleColor.Red);
+                            }
+
+                        }
                 }
-                Console.WriteLine();
+                else
+                {
+                    Console.WriteLine();
+                    for (int i = 0; i < 3; i++)
+                        Colorator("Folder does not exist!!! ", ConsoleColor.Red);
+                }
             }
             public void Time_pause(int value)
             {
