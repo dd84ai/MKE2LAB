@@ -56,16 +56,37 @@ namespace _5sem_4islemetod_RGR
             static int binary_count = 4;
             public static int X_count = System.Convert.ToInt32(Math.Pow(2.0, binary_count)) + 1;
             public static int Y_count = 3;
-            static int Maxiter = 10000;
-            static double E = 1e-20;
+            int Maxiter = 10000;
+            double E = 1e-20;
 
-            static double U_analit(double x, double y) { return x + y; }
-            static double f(double x, double y)
+            double U_analit(double x, double y) { return x + y; }
+            double f(double x, double y)
             {
                 return Gamma * (x + y);
                 //return 0;
             }
-            static void generating_OX_OY_lyambda_gamma()
+            public class Areas
+            {
+                public int Quanitity_of_areas = 0;
+
+                public string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+                public Areas()
+                {
+
+                }
+                public void reading_sreda()
+                {
+                    string Path = ProjectPath + "\\sreda";
+                    using (StreamReader inputFile = new StreamReader(Path))
+                    {
+                        //for (int i = 0; i < Y.Count(); i++)
+                        Quanitity_of_areas = System.Convert.ToInt32(inputFile.ReadLine());
+                    }
+                }
+            }
+            public Areas areas = new Areas();
+            
+            void generating_OX_OY_lyambda_gamma()
             {
                 data_for_generating D = new data_for_generating(1, 1);//(double Lyambda1, double Gamma1)
                 Console.WriteLine("double Lyambda1 = {0}, double Gamma1 = {1}", Lyambda, Gamma);
@@ -96,7 +117,7 @@ namespace _5sem_4islemetod_RGR
                     outputFile.WriteLine("{0} ", Gamma);
                 }
             }
-            static void Save_vector(double[] Target_vector, string fname)
+            void Save_vector(double[] Target_vector, string fname)
             {
                 using (StreamWriter outputFile = new StreamWriter(fname))
                 {
@@ -126,10 +147,10 @@ namespace _5sem_4islemetod_RGR
                         outputFile.WriteLine(Target_vector[i].ToString().Replace(',', '.'));
                 }
             }
-            static int x_index;
-            static int y_index;
-            static double f_value;
-            static void internal_adjusting_of_boundaries(int j, int i, int value, bool diag_mod, bool F_mod)
+            int x_index;
+            int y_index;
+            double f_value;
+            void internal_adjusting_of_boundaries(int j, int i, int value, bool diag_mod, bool F_mod)
             {
                 if (F_mod)
                 {
@@ -185,7 +206,7 @@ namespace _5sem_4islemetod_RGR
                 }
             }
 
-            static void A_F_adjusting_for_boundaries()
+            void A_F_adjusting_for_boundaries()
             {
                 //Занулил нужные строки матрицы
                 for (int i = 0; i < Size; i++)
@@ -202,7 +223,7 @@ namespace _5sem_4islemetod_RGR
                 }
             }
 
-            static void reading_input_data()
+            void reading_input_data()
             {
                 using (StreamReader inputFile = new StreamReader("dd84ai_RGR_input_other_data.txt"))
                 {
@@ -227,21 +248,21 @@ namespace _5sem_4islemetod_RGR
                         Y[i] = System.Convert.ToDouble(inputFile.ReadLine());
                 }
             }
-            static void G_left_filling_default()
+            void G_left_filling_default()
             {
                 G_left[0, 0] = 2; G_left[0, 1] = -2; G_left[0, 2] = 1; G_left[0, 3] = -1;
                 G_left[1, 0] = -2; G_left[1, 1] = 2; G_left[1, 2] = -1; G_left[1, 3] = 1;
                 G_left[2, 0] = 1; G_left[2, 1] = -1; G_left[2, 2] = 2; G_left[2, 3] = -2;
                 G_left[3, 0] = -1; G_left[3, 1] = 1; G_left[3, 2] = -2; G_left[3, 3] = 2;
             }
-            static void G_right_filling_default()
+            void G_right_filling_default()
             {
                 G_right[0, 0] = 2; G_right[0, 1] = 1; G_right[0, 2] = -2; G_right[0, 3] = -1;
                 G_right[1, 0] = 1; G_right[1, 1] = 2; G_right[1, 2] = -1; G_right[1, 3] = -2;
                 G_right[2, 0] = -2; G_right[2, 1] = -1; G_right[2, 2] = 2; G_right[2, 3] = 1;
                 G_right[3, 0] = -1; G_right[3, 1] = -2; G_right[3, 2] = 1; G_right[3, 3] = 2;
             }
-            static void G_filling(double hx, double hy)
+            void G_filling(double hx, double hy)
             {
                 for (int i = 0; i < 4; i++)
                     for (int j = 0; j < 4; j++)
@@ -249,14 +270,14 @@ namespace _5sem_4islemetod_RGR
                         G[i, j] = ((Lyambda * hy) / (6 * hx)) * (G_left[i, j] + G_right[i, j]);
                     }
             }
-            static void M_filling_default()
+            void M_filling_default()
             {
                 M_default[0, 0] = 4; M_default[0, 1] = 2; M_default[0, 2] = 2; M_default[0, 3] = 1;
                 M_default[1, 0] = 2; M_default[1, 1] = 4; M_default[1, 2] = 1; M_default[1, 3] = 2;
                 M_default[2, 0] = 2; M_default[2, 1] = 1; M_default[2, 2] = 4; M_default[2, 3] = 2;
                 M_default[3, 0] = 1; M_default[3, 1] = 2; M_default[3, 2] = 2; M_default[3, 3] = 4;
             }
-            static void M_filling(double hx, double hy)
+            void M_filling(double hx, double hy)
             {
                 for (int i = 0; i < 4; i++)
                     for (int j = 0; j < 4; j++)
@@ -264,7 +285,7 @@ namespace _5sem_4islemetod_RGR
                         M[i, j] = ((Gamma * hx * hy) / (36)) * (M_default[i, j]);
                     }
             }
-            static void b_filling(double hx, double hy, int ind_x, int ind_y)
+            void b_filling(double hx, double hy, int ind_x, int ind_y)
             {
                 double f1 = f(X[ind_x], Y[ind_y]);
                 double f2 = f(X[ind_x + 1], Y[ind_y]);
@@ -276,7 +297,7 @@ namespace _5sem_4islemetod_RGR
                 b[2] = (hx * hy / 36) * (2 * f1 + f2 + 4 * f3 + 2 * f4);
                 b[3] = (hx * hy / 36) * (f1 + 2 * f2 + 2 * f3 + 4 * f4);
             }
-            static void A_and_F_by_default_zero()
+            void A_and_F_by_default_zero()
             {
                 for (int i = 0; i < Size; i++)
                 {
@@ -286,7 +307,7 @@ namespace _5sem_4islemetod_RGR
                 }
             }
 
-            static void A_and_F_filling(int i, int j)
+            void A_and_F_filling(int i, int j)
             {
                 int[] ind = new int[4];
                 ind[0] = i + (j) * (X.Count());
@@ -305,7 +326,7 @@ namespace _5sem_4islemetod_RGR
                     F[ind[k]] += b[k];
             }
 
-            static void A_tranfroming_into_dense_LU()
+            void A_tranfroming_into_dense_LU()
             {
                 for (int i = 0; i < Size; i++)
                 {
@@ -329,7 +350,7 @@ namespace _5sem_4islemetod_RGR
                     }
                 }
             }
-            static double[] Direct_for_dense_Ly_F(double[] F)
+            double[] Direct_for_dense_Ly_F(double[] F)
             {
                 double[] y = new double[Size];
                 for (int i = 0; i < Size; i++)
@@ -344,7 +365,7 @@ namespace _5sem_4islemetod_RGR
                 }
                 return y;
             }
-            static double[] Reverse_for_dense_Ux_y(double[] y)
+            double[] Reverse_for_dense_Ux_y(double[] y)
             {
                 double[] x = y;
 
@@ -357,18 +378,18 @@ namespace _5sem_4islemetod_RGR
 
                 return x;
             }
-            static bool debug = false;
-            static double[,] G = new double[4, 4];
-            static double[,] G_left = new double[4, 4];
-            static double[,] G_right = new double[4, 4];
-            static double[,] M = new double[4, 4];
-            static double[,] M_default = new double[4, 4];
-            static double[] b = new double[4];
-            static double[,] A; //global dense matrix
-            static double[] F; //for Ax=F
-            static double[] y;
-            static int Size;
-            static void Show_matrix(double[,] s)
+            bool debug = false;
+            double[,] G = new double[4, 4];
+            double[,] G_left = new double[4, 4];
+            double[,] G_right = new double[4, 4];
+            double[,] M = new double[4, 4];
+            double[,] M_default = new double[4, 4];
+            double[] b = new double[4];
+            double[,] A; //global dense matrix
+            double[] F; //for Ax=F
+            double[] y;
+            int Size;
+            void Show_matrix(double[,] s)
             {
                 int size = System.Convert.ToInt32(Math.Sqrt(s.Length));
                 for (int j = 0; j < size; j++)
@@ -393,7 +414,7 @@ namespace _5sem_4islemetod_RGR
                     Console.Write("=");
                 Console.WriteLine();
             }
-            static void Show_vector(double[] v)
+            void Show_vector(double[] v)
             {
                 int size = v.Count();
                 for (int j = 0; j < size; j++)
@@ -408,14 +429,14 @@ namespace _5sem_4islemetod_RGR
                     Console.Write("=");
                 Console.WriteLine();
             }
-            static double[,] Ggl;
-            static double[,] Ggu;
-            static double[] Ggd;
-            static double[] F_sparse;
-            static double[] Y_sparse; //for Ax=F
-            static double[] X_sparse;
-            static int Size_sparse = Math.Max(X_count, Y_count) + 1; //Half size of tape
-            static void A_and_F_by_default_zero__sparse_vers()
+            double[,] Ggl;
+            double[,] Ggu;
+            double[] Ggd;
+            double[] F_sparse;
+            double[] Y_sparse; //for Ax=F
+            double[] X_sparse;
+            int Size_sparse = Math.Max(X_count, Y_count) + 1; //Half size of tape
+            void A_and_F_by_default_zero__sparse_vers()
             {
                 for (int i = 0; i < Size; i++)
                 {
@@ -428,7 +449,7 @@ namespace _5sem_4islemetod_RGR
                     F_sparse[i] = 0;
                 }
             }
-            static void A_and_F_filling__sparse_vers(int i_in, int j_in) //local i,j
+            void A_and_F_filling__sparse_vers(int i_in, int j_in) //local i,j
             {
                 //4 икса на 3 игрека.
                 //Сколько иксов в ряду? = 4.
@@ -493,7 +514,7 @@ namespace _5sem_4islemetod_RGR
                 return false;
             }
 
-            static void A_F_adjusting_for_boundaries__sparse_vers()
+            void A_F_adjusting_for_boundaries__sparse_vers()
             {
                 //Занулил нужные строки матрицы
                 for (int i = 0; i < Size; i++)
@@ -526,7 +547,7 @@ namespace _5sem_4islemetod_RGR
                 }
             }
             //static double[] test;
-            static void generating_global_matrix()
+            void generating_global_matrix()
             {
                 G_left_filling_default(); if (debug) Show_matrix(G_left);
                 G_right_filling_default(); if (debug) Show_matrix(G_right);
@@ -568,10 +589,10 @@ namespace _5sem_4islemetod_RGR
 
                 A_F_adjusting_for_boundaries__sparse_vers();
             }
-            static double[,] aGgl;
-            static double[,] aGgu;
-            static double[] aGgd;
-            static void copy_M_to_LUM()
+            double[,] aGgl;
+            double[,] aGgu;
+            double[] aGgd;
+            void copy_M_to_LUM()
             {
                 aGgl = new double[Size, Size_sparse];
                 aGgu = new double[Size, Size_sparse];
@@ -586,7 +607,7 @@ namespace _5sem_4islemetod_RGR
                     aGgd[i] = Ggd[i];
                 }
             }
-            static void A_sparse_transforming_into_sparse_LU()
+            void A_sparse_transforming_into_sparse_LU()
             {
                 for (int i = 0; i < Size; i++)
                 {
@@ -615,7 +636,7 @@ namespace _5sem_4islemetod_RGR
                     Ggd[i] = Ggd[i] - sd;
                 }
             }
-            static double[] Direct_for_sparse_Ly_F(double[] F)
+            double[] Direct_for_sparse_Ly_F(double[] F)
             {
                 double[] b = new double[Size];
                 for (int i = 0; i < Size; i++)
@@ -633,7 +654,7 @@ namespace _5sem_4islemetod_RGR
                 }
                 return b;
             }
-            static double[] Direct(double[,] glgu, double[] di, double[] F)
+            double[] Direct(double[,] glgu, double[] di, double[] F)
             {
                 double[] b = new double[Size];
                 for (int i = 0; i < Size; i++)
@@ -652,7 +673,7 @@ namespace _5sem_4islemetod_RGR
                 }
                 return b;
             }
-            static double[] Reverse_for_sparse_Ux_y(double[] F)
+            double[] Reverse_for_sparse_Ux_y(double[] F)
             {
                 double[] b = new double[Size];
                 for (int i = 0; i < Size; i++)
@@ -670,7 +691,7 @@ namespace _5sem_4islemetod_RGR
 
                 return b;
             }
-            static double[] Reverse(double[,] glgu, double[] di, double[] F)
+            double[] Reverse(double[,] glgu, double[] di, double[] F)
             {
                 double[] b = new double[Size];
                 for (int i = 0; i < Size; i++)
@@ -689,7 +710,7 @@ namespace _5sem_4islemetod_RGR
 
                 return b;
             }
-            static double[] multiplicate_Ax(double[] x)
+            double[] multiplicate_Ax(double[] x)
             {
                 double[] b = new double[Size];
 
@@ -710,7 +731,7 @@ namespace _5sem_4islemetod_RGR
                 }
                 return b;
             }
-            static double[] multiplicate_ATx(double[] x)
+            double[] multiplicate_ATx(double[] x)
             {
                 double[] b = new double[Size];
 
@@ -732,17 +753,17 @@ namespace _5sem_4islemetod_RGR
                 }
                 return b;
             }
-            static void vect_a_equals_b(double[] a, double[] b)
+            void vect_a_equals_b(double[] a, double[] b)
             {
                 for (int i = 0; i < a.Count(); i++)
                     a[i] = b[i];
             }
-            static void vect_a_equals_0(double[] x)
+            void vect_a_equals_0(double[] x)
             {
                 for (int i = 0; i < x.Count(); i++)
                     x[i] = 0;
             }
-            static double vect_norma(double[] x)
+            double vect_norma(double[] x)
             {
                 double max = 0;
                 for (int i = 0; i < Size; i++)
@@ -750,39 +771,39 @@ namespace _5sem_4islemetod_RGR
                 return Math.Sqrt(max);
 
             }
-            static double[] vect_b_minus_c(double[] b, double[] c)
+            double[] vect_b_minus_c(double[] b, double[] c)
             {
                 double[] result = new double[Size];
                 for (int i = 0; i < Size; i++)
                     result[i] = b[i] - c[i];
                 return result;
             }
-            static double[] vect_equals(double[] x)
+            double[] vect_equals(double[] x)
             {
                 double[] result = new double[Size];
                 for (int i = 0; i < Size; i++)
                     result[i] = x[i];
                 return result;
             }
-            static double vect_scalar_a_and_b(double[] a, double[] b)
+            double vect_scalar_a_and_b(double[] a, double[] b)
             {
                 double res = 0;
                 for (int i = 0; i < Size; i++)
                     res += a[i] * b[i];
                 return res;
             }
-            static double[] X0;
-            static double[] R;
-            static double[] Z;
-            static double[] P;
-            static double[] Ar;
-            static void vect_a_plus_equals_b_plus_c_times_const(double[] a, double[] b, double[] c, double cons)
+            double[] X0;
+            double[] R;
+            double[] Z;
+            double[] P;
+            double[] Ar;
+            void vect_a_plus_equals_b_plus_c_times_const(double[] a, double[] b, double[] c, double cons)
             {
                 for (int i = 0; i < Size; i++)
                     a[i] = b[i] + c[i] * cons;
             }
 
-            static void MSG_LU()
+            void MSG_LU()
             {
                 bool is_answer_correct = false;
                 double scalarRR = 0, scalarRR2 = 0, a = 0, b = 0;
@@ -826,7 +847,7 @@ namespace _5sem_4islemetod_RGR
                 X0 = Reverse(Ggu, null, X0);// x0 = U-1 * x0
             }
 
-            static void MSG()
+            void MSG()
             {
                 bool is_answer_correct = false;
                 double scalarRR = 0, a = 0, b = 0;
@@ -855,7 +876,7 @@ namespace _5sem_4islemetod_RGR
                     vect_a_plus_equals_b_plus_c_times_const(Z, R, Z, b); //z = rk + beta*Z;
                 }
             }
-            static void Make_Hilbert_Proud()
+            void Make_Hilbert_Proud()
             {
                 Size = 3;
                 Size_sparse = 3;
@@ -879,14 +900,14 @@ namespace _5sem_4islemetod_RGR
                 for (int i = 0; i < Size; i++)
                     F_sparse[i] = F[i];
             }
-            static void Make_Hilbert_Proud2()
+            void Make_Hilbert_Proud2()
             {
                 A = new double[3, 3];
                 A[0, 0] = (double)2; A[0, 1] = (double)1 / 2; A[0, 2] = (double)1 / 3;
                 A[1, 0] = (double)1 / 2; A[1, 1] = (double)1 / 3; A[1, 2] = (double)1 / 4;
                 A[2, 0] = (double)1 / 3; A[2, 1] = (double)1 / 4; A[2, 2] = (double)1 / 5;
             }
-            static void Make_Hilbert_Proud_C_sharp_LU()
+            void Make_Hilbert_Proud_C_sharp_LU()
             {
                 Ggd[0] = 2; Ggd[1] = 0.20833333333333331; Ggd[2] = 0.011111111111111072;
 
@@ -898,7 +919,7 @@ namespace _5sem_4islemetod_RGR
                 Ggu[1, 0] = 0; Ggu[1, 1] = 0; Ggu[1, 2] = 0.5;
                 Ggu[2, 0] = 0; Ggu[2, 1] = 0.33333333333333331; Ggu[2, 2] = 0.16666666666666669;
             }
-            static void Make_Hilbert_Proud_C_plusplus_LU()
+            void Make_Hilbert_Proud_C_plusplus_LU()
             {
                 Ggd[0] = 2; Ggd[1] = 0.20833330000000000; Ggd[2] = -0.037037075703711758;
 
@@ -925,8 +946,11 @@ namespace _5sem_4islemetod_RGR
 
                 Size = 3; Size_sparse = 3;
             }
-            static void Sub_Main()
+            void Sub_Main()
             {
+                //Шаг нулевой. Считывание среды
+                areas.reading_sreda();
+
                 //Шаг первый. Сгенерировать данные.
                 generating_OX_OY_lyambda_gamma();
 
@@ -1033,8 +1057,8 @@ namespace _5sem_4islemetod_RGR
                 Colorator("Press Escape to exit.", ConsoleColor.Magenta);
                 Console.ReadKey();
             }
-            public static string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            public static Random random = new Random();
+            public string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            public Random random = new Random();
             public void SaySomeQuote()
             {
                 string TargetPath = ProjectPath + "\\" + "Music" + "\\";
