@@ -65,15 +65,112 @@ namespace _5sem_4islemetod_RGR
                 return Gamma * (x + y);
                 //return 0;
             }
-            public class Areas
+            public class Sreda
             {
                 public int Quanitity_of_areas = 0;
 
                 public string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-                public Areas()
+
+                class SmallArea
+                {
+                    //Границы области
+                    public double x0, x1, y0, y1;
+
+                    //Магнитопрониц, сила тока, номер материала.
+                    public double muo, j, nmat;
+                    public SmallArea(double _x0, double _x1, double _y0, double _y1, double _muo, double _j, double _nmat)
+                    {
+                        x0 = _x0;
+                        x1 = _x1;
+                        y0 = _y0;
+                        y1 = _y1;
+                        muo = _muo;
+                        j = _j;
+                        nmat = _nmat;
+                    }
+                }
+                List<SmallArea> areas = new List<SmallArea>();
+                /*
+                KolObl
+                x0[1]       x1[1] y0[1]       y1[1] muo[1]       j[1] nmat[1]
+                x0[2] x1[2]       y0[2] y1[2]       muo[2] j[2]       nmat[2]
+                ...
+                x0[KolObl] x1[KolObl]  y0[KolObl] y1[KolObl]  muo[KolObl] j[KolObl]  nmat[KolObl]
+
+                x[1] KolX
+                x[2] x[3] ... x[KolX]
+                hXm[1]  hXm[2]  ...  hXm[KolX]
+                dhX[1]  dhX[2]  ...  dhX[KolX]
+                shX[1]  shX[2]  ...  shX[KolX]
+
+                y[1] KolY
+                y[2] y[3] ... y[KolY]
+                hYm[1]  hYm[2]  ...  hYm[KolY]
+                dhY[1]  dhY[2]  ...  dhY[KolY]
+                shY[1]  shY[2]  ...  shY[KolY]
+
+                DoubleToX DoubleToY*/
+
+                public Sreda()
                 {
 
                 }
+                public string StringExtraSpaceRemover(string NeedToBeSplitted)
+                {
+                    string NewNeed = NeedToBeSplitted;
+                    string OldNeed = " ";
+                    while (NewNeed.CompareTo(OldNeed) != 0)
+                    {
+                        OldNeed = NewNeed;
+                        NewNeed = NewNeed.Replace("  ", " ");
+                    }
+
+                    return NewNeed;
+                }
+                public string[] StringSplitter(string SplitTarget)
+                {
+                    string NeedToBeSplitted = SplitTarget;
+                    NeedToBeSplitted = NeedToBeSplitted.Replace('.', ',');
+                    NeedToBeSplitted = NeedToBeSplitted.Replace('\t', ' ');
+                    var Splitted = StringExtraSpaceRemover(NeedToBeSplitted).Split(' ');
+                    return Splitted;
+                }
+                public void ReadAxe(StreamReader inputFile, ref Axe TargetAxe)
+                {
+
+                    string[] Splitted = StringSplitter(inputFile.ReadLine());
+                    TargetAxe.StartPoint = System.Convert.ToDouble(Splitted[0]);
+                    TargetAxe.Quantity = System.Convert.ToInt32(Splitted[1]);
+
+                    string[] SplittedX = StringSplitter(inputFile.ReadLine());
+                    string[] SplittedStep = StringSplitter(inputFile.ReadLine());
+                    string[] SplittedRazryadka = StringSplitter(inputFile.ReadLine());
+                    string[] SplittedForwardOrBacward = StringSplitter(inputFile.ReadLine());
+                    for (int i = 0, end = TargetAxe.Quantity; i < end; i++)
+                    {
+                        TargetAxe.x.Add(System.Convert.ToDouble(SplittedX[i]));
+                        TargetAxe.step_init.Add(System.Convert.ToDouble(SplittedStep[i]));
+                        TargetAxe.koef_of_razryadka.Add(System.Convert.ToDouble(SplittedRazryadka[i]));
+
+                        if (SplittedForwardOrBacward[i] == "1")
+                            TargetAxe.ItsForwardOrBackward.Add(true);
+                        else TargetAxe.ItsForwardOrBackward.Add(false);
+                    }
+
+                }
+                public class Axe
+                {
+                    public double StartPoint;
+                    public int Quantity;
+                    public List<double> x = new List<double>();
+                    public List<double> step_init = new List<double>();
+                    public List<double> koef_of_razryadka = new List<double>();
+                    public List<bool> ItsForwardOrBackward = new List<bool>();
+
+                    //Дробление сетки
+                    public int DoubleToAxe;
+                }
+                public Axe AxeX = new Axe(), AxeY = new Axe();
                 public void reading_sreda()
                 {
                     string Path = ProjectPath + "\\sreda";
@@ -81,10 +178,37 @@ namespace _5sem_4islemetod_RGR
                     {
                         //for (int i = 0; i < Y.Count(); i++)
                         Quanitity_of_areas = System.Convert.ToInt32(inputFile.ReadLine());
+
+                        //Считаем области из файла.
+                        for (int i = 0; i < Quanitity_of_areas; i++)
+                        {
+                            string[] Splitted = StringSplitter(inputFile.ReadLine());
+
+                            areas.Add(new SmallArea(
+                                System.Convert.ToDouble(Splitted[0]),
+                                System.Convert.ToDouble(Splitted[1]),
+                                System.Convert.ToDouble(Splitted[2]),
+                                System.Convert.ToDouble(Splitted[3]),
+                                System.Convert.ToDouble(Splitted[4]),
+                                System.Convert.ToDouble(Splitted[5]),
+                                System.Convert.ToDouble(Splitted[6])
+                                ));
+                        }
+
+
+                        //Настало время Осей.
+                        ReadAxe(inputFile, ref AxeX);
+                        ReadAxe(inputFile, ref AxeY);
+                        {
+                            string[] Splitted = StringSplitter(inputFile.ReadLine());
+                            AxeX.DoubleToAxe = System.Convert.ToInt32(Splitted[0]);
+                            AxeY.DoubleToAxe = System.Convert.ToInt32(Splitted[1]);
+                        }
+                        Console.WriteLine("Sreda has been read.");
                     }
                 }
             }
-            public Areas areas = new Areas();
+            public Sreda areas = new Sreda();
             
             void generating_OX_OY_lyambda_gamma()
             {
