@@ -209,34 +209,78 @@ namespace _5sem_4islemetod_RGR
                 }
             }
             public Sreda areas = new Sreda();
-            
+            List<double> AxeGenerating(ref Sreda.Axe TargetAxe)
+            {
+                List<double> Temp = new List<double>();
+
+                Temp.Add(TargetAxe.StartPoint);
+                foreach (var elem in TargetAxe.x)
+                    Temp.Add(elem);
+
+                List<List<double>> Between = new List<List<double>>();
+                for (int i = 0; i < TargetAxe.Quantity; i++)
+                {
+                    Between.Add(new List<double>());
+                    double start, end, step;
+                    if (TargetAxe.ItsForwardOrBackward[i])
+                    {
+                        start = Temp[i]; end = Temp[i + 1]; step = TargetAxe.step_init[i];
+                    }
+                    else
+                    {
+                        start = Temp[i + 1]; end = Temp[i]; step = -TargetAxe.step_init[i];
+                    }
+
+                    while ((start + step < end && TargetAxe.ItsForwardOrBackward[i] == true)
+                        || start + step > end && TargetAxe.ItsForwardOrBackward[i] == false)
+                    {
+                        if (TargetAxe.ItsForwardOrBackward[i] || Between[i].Count == 0)
+                            Between[i].Add(start + step);
+                        else Between[i].Insert(0, start + step);
+
+                        start += step;
+                        step *= TargetAxe.koef_of_razryadka[i];
+                    }
+                }
+
+                int counter = 1;
+                foreach (var Range in Between)
+                {
+                    foreach (var number in Range)
+                    {
+                        Temp.Insert(counter, number);
+                        counter++;
+                    }
+                    counter++;
+                }
+
+                for (int i = 0; i < Temp.Count() - 1; i++)
+                {
+                    if (Temp[i + 1] < Temp[i]) { Console.WriteLine("Error: if (Temp[i + 1] < Temp[i])..."); Console.ReadKey(); }
+
+                }
+
+                return Temp;
+            }
             void generating_OX_OY_lyambda_gamma()
             {
                 data_for_generating D = new data_for_generating(1, 1);//(double Lyambda1, double Gamma1)
                 Console.WriteLine("double Lyambda1 = {0}, double Gamma1 = {1}", Lyambda, Gamma);
-                D._OX = new data_for_O(X_count - 1, 1, 3);//(int size1, double t01, double tn1)
-                Console.WriteLine("OX:int size1 = {0}, area t01 = [{1},{2}]", D._OX.size + 1, D._OX.t0, D._OX.tn);
-                D._OY = new data_for_O(Y_count - 1, 4, 6);//(int size1, double t01, double tn1)
-                Console.WriteLine("OY:int size1 = {0}, area t01 = [{1},{2}]", D._OY.size + 1, D._OY.t0, D._OY.tn);
 
                 using (StreamWriter outputFile = new StreamWriter("dd84ai_RGR_intput_OX.txt"))
                 {
-                    double full_h = D._OX.tn - D._OX.t0;
-                    double h = full_h / D._OX.size;
-                    for (int i = 0; i <= D._OX.size; i++)
-                        outputFile.WriteLine("{0} ", D._OX.t0 + h * i);
+                    var Temp = AxeGenerating(ref areas.AxeX);
+                    foreach (var item in Temp) outputFile.WriteLine("{0} ", item);
                 }
                 using (StreamWriter outputFile = new StreamWriter("dd84ai_RGR_input_OY.txt"))
                 {
-                    double full_h = D._OY.tn - D._OY.t0;
-                    double h = full_h / D._OY.size;
-                    for (int i = 0; i <= D._OY.size; i++)
-                        outputFile.WriteLine("{0} ", D._OY.t0 + h * i);
+                    var Temp = AxeGenerating(ref areas.AxeY);
+                    foreach (var item in Temp) outputFile.WriteLine("{0} ", item);
                 }
                 using (StreamWriter outputFile = new StreamWriter("dd84ai_RGR_input_other_data.txt"))
                 {
-                    outputFile.WriteLine("{0} ", D._OX.size);
-                    outputFile.WriteLine("{0} ", D._OY.size);
+                    outputFile.WriteLine("{0} ", areas.AxeX.Quantity);
+                    outputFile.WriteLine("{0} ", areas.AxeY.Quantity);
                     outputFile.WriteLine("{0} ", Lyambda);
                     outputFile.WriteLine("{0} ", Gamma);
                 }
@@ -1244,8 +1288,6 @@ namespace _5sem_4islemetod_RGR
         }
         public class data_for_generating : data_other
         {
-            public data_for_O _OX;
-            public data_for_O _OY;
 
             public data_for_generating(double Lyambda1, double Gamma1)
             {
