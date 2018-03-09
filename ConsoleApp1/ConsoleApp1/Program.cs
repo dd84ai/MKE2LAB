@@ -1,6 +1,8 @@
-﻿#define Defined_dense_LU_matrix_is_online
+﻿//#define Defined_Dense_Matrix_is_online
+//#define Defined_dense_LU_matrix_is_online
 #define Defined_sparse_LU_matrix_is_online
-#define Defined_sparse_MSG_is_online
+//#define Defined_sparse_MSG_is_online
+//#define Defined_sparse_MSG
 //#define Debug
 using System;
 using System.Collections.Generic;
@@ -211,12 +213,17 @@ namespace _5sem_4islemetod_RGR
             public Sreda areas = new Sreda();
             List<double> AxeGenerating(ref Sreda.Axe TargetAxe)
             {
+                //Где будет сгенерирована Ось.
                 List<double> Temp = new List<double>();
 
+                //Добавили начальную точку
                 Temp.Add(TargetAxe.StartPoint);
+
+                //Добавили главные узлы
                 foreach (var elem in TargetAxe.x)
                     Temp.Add(elem);
 
+                //Генерируем то что между главных узлов(нелинейную фигню)
                 List<List<double>> Between = new List<List<double>>();
                 for (int i = 0; i < TargetAxe.Quantity; i++)
                 {
@@ -243,6 +250,7 @@ namespace _5sem_4islemetod_RGR
                     }
                 }
 
+                //вставить то что между главным узлами.
                 int counter = 1;
                 foreach (var Range in Between)
                 {
@@ -254,12 +262,26 @@ namespace _5sem_4islemetod_RGR
                     counter++;
                 }
 
+                //А теперь еще надо подробить сетку...
+                int Fractionization = Convert.ToInt32(Math.Pow(2, TargetAxe.DoubleToAxe));
+                List<double> TempFractioned = new List<double>();
+                for (int i = 0; i < Temp.Count()-1; i++)
+                {
+                    TempFractioned.Add(Temp[i]);
+                    double step = (Temp[i + 1] - Temp[i]) / ((double)Fractionization);
+                    for (int j = 1; j < Fractionization; j++)
+                        TempFractioned.Add(Temp[i] + step*j);
+                }
+                TempFractioned.Add(Temp[Temp.Count() - 1]);
+                Temp = TempFractioned;
+                
+                //Проверка что каждый следующий элемент больше предыдущего.
                 for (int i = 0; i < Temp.Count() - 1; i++)
                 {
                     if (Temp[i + 1] < Temp[i]) { Console.WriteLine("Error: if (Temp[i + 1] < Temp[i])..."); Console.ReadKey(); }
 
                 }
-
+                TargetAxe.Quantity = Temp.Count();
                 return Temp;
             }
             void generating_OX_OY_lyambda_gamma()
@@ -395,11 +417,11 @@ namespace _5sem_4islemetod_RGR
             {
                 using (StreamReader inputFile = new StreamReader("dd84ai_RGR_input_other_data.txt"))
                 {
-                    int ox_size = System.Convert.ToInt32(inputFile.ReadLine()) + 1;
-                    X = new double[ox_size];
+                    int ox_size = System.Convert.ToInt32(inputFile.ReadLine());
+                    X = new double[ox_size]; X_count = ox_size;
 
-                    int oy_size = System.Convert.ToInt32(inputFile.ReadLine()) + 1;
-                    Y = new double[oy_size];
+                    int oy_size = System.Convert.ToInt32(inputFile.ReadLine());
+                    Y = new double[oy_size]; Y_count = oy_size;
 
                     Lyambda = System.Convert.ToDouble(inputFile.ReadLine());
 
@@ -415,6 +437,9 @@ namespace _5sem_4islemetod_RGR
                     for (int i = 0; i < Y.Count(); i++)
                         Y[i] = System.Convert.ToDouble(inputFile.ReadLine());
                 }
+
+                //Anti-Bug!
+                Size_sparse = Math.Max(X_count, Y_count) + 1; //Half size of tape
             }
             void G_left_filling_default()
             {
@@ -722,8 +747,9 @@ namespace _5sem_4islemetod_RGR
                 M_filling_default(); if (debug) Show_matrix(M_default);
 
                 Size = X.Count() * Y.Count();
+                #if (Defined_Dense_Matrix_is_online)
                 A = new double[Size, Size];
-
+#endif
                 //new adition
                 Ggl = new double[Size, Size_sparse];
                 Ggu = new double[Size, Size_sparse];
@@ -731,8 +757,9 @@ namespace _5sem_4islemetod_RGR
                 F = new double[Size];
                 F_sparse = new double[Size];
                 //
-
+#if (Defined_Dense_Matrix_is_online)
                 A_and_F_by_default_zero(); if (debug) Show_matrix(A);
+#endif
                 A_and_F_by_default_zero__sparse_vers(); // new adition
 
                 for (int i = 0; i < X.Count() - 1; i++)
@@ -745,13 +772,16 @@ namespace _5sem_4islemetod_RGR
                         M_filling(hx, hy); if (debug) Show_matrix(M);
                         b_filling(hx, hy, i, j); if (debug) Show_vector(b);
 
+#if (Defined_Dense_Matrix_is_online)
                         A_and_F_filling(i, j); if (debug) Show_matrix(A);
-
+#endif
                         A_and_F_filling__sparse_vers(i, j);
                     }
 
                 if (debug) Show_vector(F);
+                #if (Defined_Dense_Matrix_is_online)
                 A_F_adjusting_for_boundaries();
+#endif
                 if (debug) Show_matrix(A);
                 if (debug) Show_vector(F);
 
@@ -980,7 +1010,9 @@ namespace _5sem_4islemetod_RGR
                 vect_a_equals_0(X0); /* X0 = 0 */
                 double vect_norma_F = vect_norma(F_sparse);
 
-                R = multiplicate_Ax(X0);  // r = A*x
+                //R = multiplicate_Ax(X0);  // r = A*x
+                R = new double[Size];
+                vect_a_equals_0(R);
                 R = vect_b_minus_c(F_sparse, R); // R = F - R
                 R = Direct(Ggl, Ggd, R); // r = L-1 * r
                 R = Reverse(Ggl, Ggd, R);// r = L-t * r
@@ -1130,10 +1162,14 @@ namespace _5sem_4islemetod_RGR
 
                 //Шаг четвертый. Посчитать СЛАУ.
                 y = new double[Size];
+#if (Defined_Dense_Matrix_is_online)
+                A_tranfroming_into_dense_LU(); if (debug) Show_matrix(A);
+#endif
+                copy_M_to_LUM();
+
 
 #if (Defined_dense_LU_matrix_is_online)
-                A_tranfroming_into_dense_LU(); if (debug) Show_matrix(A);
-                copy_M_to_LUM();
+
 
 
                 y = Direct_for_dense_Ly_F(F); if (debug) Show_vector(y);
@@ -1145,6 +1181,8 @@ namespace _5sem_4islemetod_RGR
                 }
 #endif
 
+
+#if (Defined_sparse_MSG)
                 F = vect_equals(F_sparse);
                 Console.WriteLine("MSG:");
                 MSG();
@@ -1154,7 +1192,7 @@ namespace _5sem_4islemetod_RGR
                     Save_vector(X0, "dd84ai_RGR_output_X0_dense_MSG_LU.txt");
                     Show_three_elements_from_vector(X0);
                 }
-
+#endif
                 //Надо ЛУ факторизацию и МСГ метод.
                 //Кратчайшим путем вижу, ЛУ факторизацию
 #if (Defined_sparse_LU_matrix_is_online)
