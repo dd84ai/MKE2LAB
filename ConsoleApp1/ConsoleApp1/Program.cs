@@ -132,7 +132,8 @@ namespace _5sem_4islemetod_RGR
                 public string[] StringSplitter(string SplitTarget)
                 {
                     string NeedToBeSplitted = SplitTarget;
-                    NeedToBeSplitted = NeedToBeSplitted.Replace('.', ',');
+                    NeedToBeSplitted = NeedToBeSplitted.Replace('.', System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator[0]);
+                    NeedToBeSplitted = NeedToBeSplitted.Replace(',', System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator[0]);
                     NeedToBeSplitted = NeedToBeSplitted.Replace('\t', ' ');
                     var Splitted = StringExtraSpaceRemover(NeedToBeSplitted).Split(' ');
                     return Splitted;
