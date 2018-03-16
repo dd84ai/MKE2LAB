@@ -1157,7 +1157,7 @@ namespace _5sem_4islemetod_RGR
             //"nvtr.dat"
             //CountOfNumbers = 6
             //CountOfUnreadableNumbers = 2
-            public void readBinary(string FileName, int CountOfNumbers, int CountOfUnreadableNumbers,
+            public void readBinary(string FileName, int LimitToRead,int CountOfNumbers, int CountOfUnreadableNumbers,
                 List<List<int>> IntList = null, List<List<double>> DoubleList = null)
             {
 
@@ -1170,25 +1170,29 @@ namespace _5sem_4islemetod_RGR
                     int realCounter = 0;
                     while (reader.BaseStream.Position != reader.BaseStream.Length)
                     {
-                        if (IntList != null)
-                            IntNumber = reader.ReadInt32();
-                        else DoubleNumber = reader.ReadDouble();
-
-                        if (counter % CountOfNumbers == 0)
-                        {
-                            if (IntList!= null)
-                                IntList.Add(new List<int>());
-                            else DoubleList.Add(new List<double>());
-                        }
-
-                        if (counter % CountOfNumbers < CountOfNumbers - CountOfUnreadableNumbers)
+                        if (counter / CountOfNumbers < LimitToRead)
                         {
                             if (IntList != null)
-                                IntList[IntList.Count()-1].Add(IntNumber);
-                            else DoubleList[DoubleList.Count() - 1].Add(DoubleNumber);
-                            realCounter++;
-                            //Console.Write("{0};", number);
+                                IntNumber = reader.ReadInt32();
+                            else DoubleNumber = reader.ReadDouble();
+
+                            if (counter % CountOfNumbers == 0)
+                            {
+                                if (IntList != null)
+                                    IntList.Add(new List<int>());
+                                else DoubleList.Add(new List<double>());
+                            }
+
+                            if (counter % CountOfNumbers < CountOfNumbers - CountOfUnreadableNumbers)
+                            {
+                                if (IntList != null)
+                                    IntList[IntList.Count() - 1].Add(IntNumber);
+                                else DoubleList[DoubleList.Count() - 1].Add(DoubleNumber);
+                                realCounter++;
+                                //Console.Write("{0};", number);
+                            }
                         }
+                        else break;
                         counter++;
 
                     }
@@ -1244,6 +1248,32 @@ namespace _5sem_4islemetod_RGR
 
             List<List<double>> r_x = new List<List<double>>();
             List<List<double>> r_y = new List<List<double>>();
+            
+            public void readNumber(string FileName, string FindNumber, ref int Number)
+            {
+                string Path = ProjectPath + "\\" + "Telma" + "\\" + FileName;
+                using (StreamReader inputFile = new StreamReader(Path))
+                {
+                    string ReadLiner;
+                    while ((ReadLiner = inputFile.ReadLine()) != null)
+                    {
+
+                        ReadLiner = RemoveExtraSpaces(ReadLiner);
+                        string[] Splitted = ReadLiner.Split(' ');
+
+                        int Found = 0; bool boolFound = false;
+                        for (int i = 0; i < Splitted.Count(); i++)
+                            if (Splitted[i] == FindNumber) { Found = i; boolFound = true; break; }
+
+                        if (boolFound)
+                        {
+                            Number = Convert.ToInt32(Splitted[Found + 1]);
+                        }
+
+                    }
+                }
+            }
+            public int kuzlov = 0, ktr = 0, kt1 = 0;
             void Sub_Main()
             {
 
@@ -1256,16 +1286,21 @@ namespace _5sem_4islemetod_RGR
                 //List<List<double>> rz_xy = new List<List<double>>();
                 //List<List<int>> l1 = new List<List<int>>();
                 //Шаг ноль с половинкой. Считывание телмы.
-                readBinary("nvtr.dat",6,2,nvtr);
-                readBinary("nvkat2d.dat", 1, 0, nvkat2d);
-                readBinary("l1.dat", 1, 0, l1);
-                readBinary("rz.dat", 2, 0, null,rz_xy);
+
+                readNumber("inf2tr.dat", "kuzlov=",ref kuzlov);
+                readNumber("inf2tr.dat", "ktr=", ref ktr);
+                readNumber("inf2tr.dat", "kt1=", ref kt1);
+
+                readBinary("nvtr.dat", ktr, 6,2,nvtr);
+                readBinary("nvkat2d.dat", ktr, 1, 0, nvkat2d);
+                readBinary("l1.dat", kt1, 1, 0, l1);
+                readBinary("rz.dat", kuzlov, 2, 0, null,rz_xy);
 
                 readTextedFile("mu", 2, 0, mu);
                 readTextedFile("toku", 2, 0, toku);
 
-                readBinary("r.dat", 1, 0, null, r_x);
-                readBinary("z.dat", 1, 0, null, r_y);
+                readBinary("r.dat", Int32.MaxValue, 1, 0, null, r_x);
+                readBinary("z.dat", Int32.MaxValue, 1, 0, null, r_y);
 
                 //Шаг первый. Сгенерировать данные.
                 generating_OX_OY_lyambda_gamma();
