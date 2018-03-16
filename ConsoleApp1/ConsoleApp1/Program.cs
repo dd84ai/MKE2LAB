@@ -1160,6 +1160,9 @@ namespace _5sem_4islemetod_RGR
             public void readBinary(string FileName, int LimitToRead,int CountOfNumbers, int CountOfUnreadableNumbers,
                 List<List<int>> IntList = null, List<List<double>> DoubleList = null)
             {
+                if (IntList != null) IntList.Clear();
+                else DoubleList.Clear();
+
 
                 string Path = ProjectPath + "\\" + "Telma" + "\\" + FileName;
                 using (BinaryReader reader = new BinaryReader(File.Open(Path, FileMode.Open)))
@@ -1203,6 +1206,8 @@ namespace _5sem_4islemetod_RGR
             public string RemoveExtraSpaces(string str)
             {
                 string OldString = "";
+                str = str.Replace('.', System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator[0]);
+                str = str.Replace(',', System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator[0]);
                 bool DoReplace = true;
                 while (DoReplace)
                 {
@@ -1301,6 +1306,27 @@ namespace _5sem_4islemetod_RGR
 
                 readBinary("r.dat", Int32.MaxValue, 1, 0, null, r_x);
                 readBinary("z.dat", Int32.MaxValue, 1, 0, null, r_y);
+
+                int limit1 = 0;
+                for (int i = 0; i < r_x.Count(); i++)
+                    if (r_x[i][0] == rz_xy[rz_xy.Count() - 1][0])
+                    {
+                        limit1 = i; break;
+                    }
+
+                int limit2 = 0;
+                for (int i = 0; i < r_x.Count(); i++)
+                    if (r_y[i][0] == rz_xy[rz_xy.Count() - 1][1])
+                    {
+                        limit2 = i; break;
+                    }
+
+                limit1++; limit2++;
+
+                readBinary("r.dat", limit1, 1, 0, null, r_x);
+                readBinary("z.dat", limit2, 1, 0, null, r_y);
+
+                int test = limit1 * limit2;
 
                 //Шаг первый. Сгенерировать данные.
                 generating_OX_OY_lyambda_gamma();
