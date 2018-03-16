@@ -293,17 +293,17 @@ namespace _5sem_4islemetod_RGR
                 using (StreamWriter outputFile = new StreamWriter("dd84ai_RGR_intput_OX.txt"))
                 {
                     var Temp = AxeGenerating(ref areas.AxeX);
-                    foreach (var item in Temp) outputFile.WriteLine("{0} ", item);
+                    foreach (var item in r_x) outputFile.WriteLine("{0} ", item[0]);
                 }
                 using (StreamWriter outputFile = new StreamWriter("dd84ai_RGR_input_OY.txt"))
                 {
                     var Temp = AxeGenerating(ref areas.AxeY);
-                    foreach (var item in Temp) outputFile.WriteLine("{0} ", item);
+                    foreach (var item in r_y) outputFile.WriteLine("{0} ", item[0]);
                 }
                 using (StreamWriter outputFile = new StreamWriter("dd84ai_RGR_input_other_data.txt"))
                 {
-                    outputFile.WriteLine("{0} ", areas.AxeX.Quantity);
-                    outputFile.WriteLine("{0} ", areas.AxeY.Quantity);
+                    outputFile.WriteLine("{0} ", r_x.Count());
+                    outputFile.WriteLine("{0} ", r_y.Count());
                     outputFile.WriteLine("{0} ", Lyambda);
                     outputFile.WriteLine("{0} ", Gamma);
                 }
@@ -431,7 +431,9 @@ namespace _5sem_4islemetod_RGR
                 using (StreamReader inputFile = new StreamReader("dd84ai_RGR_intput_OX.txt"))
                 {
                     for (int i = 0; i < X.Count(); i++)
+                    {
                         X[i] = System.Convert.ToDouble(inputFile.ReadLine());
+                    }
                 }
                 using (StreamReader inputFile = new StreamReader("dd84ai_RGR_input_OY.txt"))
                 {
@@ -751,7 +753,8 @@ namespace _5sem_4islemetod_RGR
                 G_right_filling_default(); if (debug) Show_matrix(G_right);
                 M_filling_default(); if (debug) Show_matrix(M_default);
 
-                Size = X.Count() * Y.Count();
+                Size = rz_xy.Count();
+
                 #if (Defined_Dense_Matrix_is_online)
                 A = new double[Size, Size];
 #endif
@@ -762,9 +765,7 @@ namespace _5sem_4islemetod_RGR
                 F = new double[Size];
                 F_sparse = new double[Size];
                 //
-#if (Defined_Dense_Matrix_is_online)
-                A_and_F_by_default_zero(); if (debug) Show_matrix(A);
-#endif
+
                 A_and_F_by_default_zero__sparse_vers(); // new adition
 
                 for (int i = 0; i < X.Count() - 1; i++)
@@ -1240,6 +1241,9 @@ namespace _5sem_4islemetod_RGR
             }
             List<PointIntDouble> mu = new List<PointIntDouble>();
             List<PointIntDouble> toku = new List<PointIntDouble>();
+
+            List<List<double>> r_x = new List<List<double>>();
+            List<List<double>> r_y = new List<List<double>>();
             void Sub_Main()
             {
 
@@ -1260,11 +1264,16 @@ namespace _5sem_4islemetod_RGR
                 readTextedFile("mu", 2, 0, mu);
                 readTextedFile("toku", 2, 0, toku);
 
+                readBinary("r.dat", 1, 0, null, r_x);
+                readBinary("z.dat", 1, 0, null, r_y);
+
                 //Шаг первый. Сгенерировать данные.
                 generating_OX_OY_lyambda_gamma();
 
                 //Шаг второй. Считать эти данные из файла.
                 reading_input_data();
+
+
 
                 //Шаг третий. Сгенерировать матрицу
                 generating_global_matrix();
