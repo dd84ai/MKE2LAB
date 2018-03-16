@@ -623,6 +623,10 @@ namespace _5sem_4islemetod_RGR
                     Console.Write("=");
                 Console.WriteLine();
             }
+            List<List<int>> nvtr = new List<List<int>>();
+            List<List<int>> nvkat2d = new List<List<int>>();
+            List<List<double>> rz_xy = new List<List<double>>();
+            List<List<int>> l1 = new List<List<int>>();
             double[,] Ggl;
             double[,] Ggu;
             double[] Ggd;
@@ -1147,10 +1151,114 @@ namespace _5sem_4islemetod_RGR
 
                 Size = 3; Size_sparse = 3;
             }
+            public string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+
+            //"nvtr.dat"
+            //CountOfNumbers = 6
+            //CountOfUnreadableNumbers = 2
+            public void readBinary(string FileName, int CountOfNumbers, int CountOfUnreadableNumbers,
+                List<List<int>> IntList = null, List<List<double>> DoubleList = null)
+            {
+
+                string Path = ProjectPath + "\\" + "Telma" + "\\" + FileName;
+                using (BinaryReader reader = new BinaryReader(File.Open(Path, FileMode.Open)))
+                {
+                    Int32 IntNumber = 0;
+                    Double DoubleNumber = 0;
+                    int counter = 0;
+                    int realCounter = 0;
+                    while (reader.BaseStream.Position != reader.BaseStream.Length)
+                    {
+                        if (IntList != null)
+                            IntNumber = reader.ReadInt32();
+                        else DoubleNumber = reader.ReadDouble();
+
+                        if (counter % CountOfNumbers == 0)
+                        {
+                            if (IntList!= null)
+                                IntList.Add(new List<int>());
+                            else DoubleList.Add(new List<double>());
+                        }
+
+                        if (counter % CountOfNumbers < CountOfNumbers - CountOfUnreadableNumbers)
+                        {
+                            if (IntList != null)
+                                IntList[IntList.Count()-1].Add(IntNumber);
+                            else DoubleList[DoubleList.Count() - 1].Add(DoubleNumber);
+                            realCounter++;
+                            //Console.Write("{0};", number);
+                        }
+                        counter++;
+
+                    }
+
+                }
+                Console.Write("");
+            }
+            public string RemoveExtraSpaces(string str)
+            {
+                string OldString = "";
+                bool DoReplace = true;
+                while (DoReplace)
+                {
+                    OldString = str;
+                    str = str.Replace("  ", " ");
+                    if (str == OldString) DoReplace = false;
+                }
+
+                return str;
+            }
+            public void readTextedFile(string FileName, int CountOfNumbers, int CountOfUnreadableNumbers,
+                List<PointIntDouble> Listik)
+            {
+                string Path = ProjectPath + "\\" + "Telma" + "\\" + FileName;
+                using (StreamReader inputFile = new StreamReader(Path))
+                {
+                    string ReadLiner;
+                    while ((ReadLiner = inputFile.ReadLine()) != null)
+                    {
+
+                        ReadLiner = RemoveExtraSpaces(ReadLiner);
+                        string[] Splitted = ReadLiner.Split(' ');
+
+                        Listik.Add(new PointIntDouble(
+                            Convert.ToInt32(Splitted[1]),
+                            Convert.ToDouble(Splitted[2])
+                            ));
+                    }
+                }
+            }
+            public class PointIntDouble
+            {
+                public int Integer;
+                public double Doubler;
+                public PointIntDouble(int _int, double _double)
+                {
+                    Integer = _int;
+                    Doubler = _double;
+                }
+            }
+            List<PointIntDouble> mu = new List<PointIntDouble>();
+            List<PointIntDouble> toku = new List<PointIntDouble>();
             void Sub_Main()
             {
+
+
                 //Шаг нулевой. Считывание среды
                 areas.reading_sreda();
+
+                //List<List<int>> nvtr = new List<List<int>>();
+                //List<List<int>> nvkat2d = new List<List<int>>();
+                //List<List<double>> rz_xy = new List<List<double>>();
+                //List<List<int>> l1 = new List<List<int>>();
+                //Шаг ноль с половинкой. Считывание телмы.
+                readBinary("nvtr.dat",6,2,nvtr);
+                readBinary("nvkat2d.dat", 1, 0, nvkat2d);
+                readBinary("l1.dat", 1, 0, l1);
+                readBinary("rz.dat", 2, 0, null,rz_xy);
+
+                readTextedFile("mu", 2, 0, mu);
+                readTextedFile("toku", 2, 0, toku);
 
                 //Шаг первый. Сгенерировать данные.
                 generating_OX_OY_lyambda_gamma();
