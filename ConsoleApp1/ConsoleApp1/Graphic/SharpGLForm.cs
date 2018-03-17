@@ -346,18 +346,15 @@ namespace slae_project
         /// <param name="e"></param>
         private void button_test_Click(object sender, EventArgs e)
         {
-            GD.List_Of_Objects.Clear();
-            Refresh_Window();
-            
-            
-            
+            //GD.List_Of_Objects.Clear();
+            //Refresh_Window();
 
-            //AsyncTest.Start();
-
+            I.SaySomeQuote();
         }
+        Program.Interface I = new Program.Interface();
         //Asynchronized AsyncTest = new Asynchronized();
 
-        
+
         /// <summary>
         /// Сбрасывает все настройки по умолчанию в менюшке справа
         /// И заодно заново отрисовывает и сбрасывает ваше местоположение
@@ -392,8 +389,8 @@ namespace slae_project
 
             Refresh_Window(false);
             SetScrollBars_to_the_end();
-        }
 
+        }
         /// <summary>
         /// Эту функцию я подарил юзерам, вызывать после добавления или удаления объектов
         /// Она обновляет изображение, настраивает максимумы скруллбаров(ибо оно зависит от границ матриц)

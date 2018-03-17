@@ -1492,7 +1492,7 @@ namespace slae_project
 
             //Console.ReadKey();
         }
-        class Interface
+        public class Interface
         {
             public void Greetings()
             {

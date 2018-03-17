@@ -65,20 +65,28 @@
     <Compile Include="Graphic\SaveLoad.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Graphic\SaveLoad.Designer.cs" />
+    <Compile Include="Graphic\SaveLoad.Designer.cs">
+      <DependentUpon>SaveLoad.cs</DependentUpon>
+    </Compile>
     <Compile Include="Graphic\SharpGLForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Graphic\SharpGLForm.designer.cs" />
+    <Compile Include="Graphic\SharpGLForm.designer.cs">
+      <DependentUpon>SharpGLForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Graphic\SharpGLSaveLoad.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Graphic\SharpGLSaveLoad.Designer.cs" />
+    <Compile Include="Graphic\SharpGLSaveLoad.Designer.cs">
+      <DependentUpon>SharpGLSaveLoad.cs</DependentUpon>
+    </Compile>
     <Compile Include="Graphic\SharpGL_limbo.cs" />
     <Compile Include="Graphic\Teleportator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Graphic\Teleportator.designer.cs" />
+    <Compile Include="Graphic\Teleportator.designer.cs">
+      <DependentUpon>Teleportator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -88,10 +96,18 @@
     <None Include="sreda.readme" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Graphic\SaveLoad.resx" />
-    <EmbeddedResource Include="Graphic\SharpGLForm.resx" />
-    <EmbeddedResource Include="Graphic\SharpGLSaveLoad.resx" />
-    <EmbeddedResource Include="Graphic\Teleportator.resx" />
+    <EmbeddedResource Include="Graphic\SaveLoad.resx">
+      <DependentUpon>SaveLoad.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphic\SharpGLForm.resx">
+      <DependentUpon>SharpGLForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphic\SharpGLSaveLoad.resx">
+      <DependentUpon>SharpGLSaveLoad.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphic\Teleportator.resx">
+      <DependentUpon>Teleportator.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
