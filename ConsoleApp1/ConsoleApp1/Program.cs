@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;//files
-
 namespace _5sem_4islemetod_RGR
 {
     public class Program
@@ -716,15 +715,26 @@ namespace _5sem_4islemetod_RGR
 
             void A_F_adjusting_for_boundaries__sparse_vers()
             {
+                int counter = 0;
                 //Занулил нужные строки матрицы
-                for (int i = 0; i < Size; i++)
+                for (int K = 0; K < l1.Count(); K++)
+                //for (int i = 0; i < Size; i++)
                 {
-                    x_index = i % X.Count(); //x = 2;
-                    y_index = i / X.Count(); //y = 1;
-                    f_value = U_analit(X[x_index], Y[y_index]);
+                    int i = l1[K][0];
+                    //x_index = i % X.Count(); //x = 2;
+                    //y_index = i / X.Count(); //y = 1;
+                    //f_value = U_analit(X[x_index], Y[y_index]);
 
-                    if (internal_adjusting_of_boundaries__sparse_vers(i))
-                    {
+                    //if (internal_adjusting_of_boundaries__sparse_vers(i))
+                    //{
+                        //Console.Write("i = {0}", i);
+
+                        //bool found = false;
+                        //foreach (var item in l1)
+                        //    if (item[0] == i) { found = true; counter++; }
+                        //if (found) Console.WriteLine(" OK");
+                        //else Console.WriteLine(" Error");
+
                         //То надо занулить всю эту строку...
                         for (int j = 0; j < Size_sparse; j++)
                         {
@@ -741,10 +751,13 @@ namespace _5sem_4islemetod_RGR
                         //Хорошо, теперь поставить единичку на диагональ.
                         Ggd[i] = 1;
                         //И осталось вектору F приписать вычисленное значение
-                        F_sparse[i] = f_value;
+                        //F_sparse[i] = f_value;
+                        F_sparse[i] = 0;
                         //Вот и вроде всё с этим.
-                    }
+                    //}
                 }
+                Console.WriteLine("Counter = {0}", counter);
+                Console.WriteLine("l1.Count() = {0}", l1.Count());
             }
             //static double[] test;
             void generating_global_matrix()
@@ -778,9 +791,9 @@ namespace _5sem_4islemetod_RGR
                         M_filling(hx, hy); if (debug) Show_matrix(M);
                         b_filling(hx, hy, i, j); if (debug) Show_vector(b);
 
-#if (Defined_Dense_Matrix_is_online)
-                        A_and_F_filling(i, j); if (debug) Show_matrix(A);
-#endif
+//#if (Defined_Dense_Matrix_is_online)
+                        //A_and_F_filling(i, j); if (debug) Show_matrix(A);
+//#endif
                         A_and_F_filling__sparse_vers(i, j);
                     }
 
@@ -1189,7 +1202,7 @@ namespace _5sem_4islemetod_RGR
                             if (counter % CountOfNumbers < CountOfNumbers - CountOfUnreadableNumbers)
                             {
                                 if (IntList != null)
-                                    IntList[IntList.Count() - 1].Add(IntNumber);
+                                    IntList[IntList.Count() - 1].Add(IntNumber - 1);
                                 else DoubleList[DoubleList.Count() - 1].Add(DoubleNumber);
                                 realCounter++;
                                 //Console.Write("{0};", number);
@@ -1232,7 +1245,7 @@ namespace _5sem_4islemetod_RGR
                         string[] Splitted = ReadLiner.Split(' ');
 
                         Listik.Add(new PointIntDouble(
-                            Convert.ToInt32(Splitted[1]),
+                            Convert.ToInt32(Splitted[1]) - 1,
                             Convert.ToDouble(Splitted[2])
                             ));
                     }
@@ -1295,18 +1308,24 @@ namespace _5sem_4islemetod_RGR
                 readNumber("inf2tr.dat", "kuzlov=",ref kuzlov);
                 readNumber("inf2tr.dat", "ktr=", ref ktr);
                 readNumber("inf2tr.dat", "kt1=", ref kt1);
+                I.Colorator("inf2tr.dat has been read.", ConsoleColor.Green);
 
                 readBinary("nvtr.dat", ktr, 6,2,nvtr);
                 readBinary("nvkat2d.dat", ktr, 1, 0, nvkat2d);
                 readBinary("l1.dat", kt1, 1, 0, l1);
                 readBinary("rz.dat", kuzlov, 2, 0, null,rz_xy);
+                I.Colorator("nvtr.dat and e.t.c. have been read.", ConsoleColor.Green);
 
                 readTextedFile("mu", 2, 0, mu);
                 readTextedFile("toku", 2, 0, toku);
+                I.Colorator("mu & toku.dat have been read.", ConsoleColor.Green);
 
+                //Считываем Оси
                 readBinary("r.dat", Int32.MaxValue, 1, 0, null, r_x);
                 readBinary("z.dat", Int32.MaxValue, 1, 0, null, r_y);
 
+                //Находим их лимит в соответствии с границей от
+                //rz_xy послед числа
                 int limit1 = 0;
                 for (int i = 0; i < r_x.Count(); i++)
                     if (r_x[i][0] == rz_xy[rz_xy.Count() - 1][0])
@@ -1322,22 +1341,27 @@ namespace _5sem_4islemetod_RGR
                     }
 
                 limit1++; limit2++;
-
+                //Считываем заново
                 readBinary("r.dat", limit1, 1, 0, null, r_x);
                 readBinary("z.dat", limit2, 1, 0, null, r_y);
 
                 int test = limit1 * limit2;
+                if (test != rz_xy.Count())
+                { I.Colorator("test != rz_xy.Count()!", ConsoleColor.Red); Console.ReadKey(); }
+                I.Colorator("r.dat & z.dat have been read.", ConsoleColor.Green);
 
                 //Шаг первый. Сгенерировать данные.
                 generating_OX_OY_lyambda_gamma();
+                I.Colorator("generating_OX_OY_lyambda_gamma();", ConsoleColor.Green);
 
                 //Шаг второй. Считать эти данные из файла.
                 reading_input_data();
-
+                I.Colorator("reading_input_data();", ConsoleColor.Green);
 
 
                 //Шаг третий. Сгенерировать матрицу
                 generating_global_matrix();
+                I.Colorator("generating_global_matrix();", ConsoleColor.Green);
 
                 //Шаг четвертый. Посчитать СЛАУ.
                 y = new double[Size];
@@ -1345,7 +1369,7 @@ namespace _5sem_4islemetod_RGR
                 A_tranfroming_into_dense_LU(); if (debug) Show_matrix(A);
 #endif
                 copy_M_to_LUM();
-
+                I.Colorator("copy_M_to_LUM();", ConsoleColor.Green);
 
 #if (Defined_dense_LU_matrix_is_online)
 
@@ -1376,12 +1400,15 @@ namespace _5sem_4islemetod_RGR
                 //Кратчайшим путем вижу, ЛУ факторизацию
 #if (Defined_sparse_LU_matrix_is_online)
                 A_sparse_transforming_into_sparse_LU();
+                I.Colorator("A_sparse_transforming_into_sparse_LU();", ConsoleColor.Green);
 
                 //Make_Hilbert_Proud_C_sharp_LU();
                 //Make_Hilbert_Proud_C_plusplus_LU();
 
                 Y_sparse = Direct_for_sparse_Ly_F(F_sparse);
+                I.Colorator("Y_sparse = Direct_for_sparse_Ly_F(F_sparse);", ConsoleColor.Green);
                 X_sparse = Reverse_for_sparse_Ux_y(Y_sparse);
+                I.Colorator("X_sparse = Reverse_for_sparse_Ux_y(Y_sparse);", ConsoleColor.Green);
                 Console.WriteLine("Gauss:");
                 if (debug) Show_vector(X_sparse);
                 if (Show_first_three_elements_from_vectors_of_answers)
