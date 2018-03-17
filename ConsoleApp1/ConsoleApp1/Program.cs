@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;//files
-namespace _5sem_4islemetod_RGR
+using System.Windows.Forms;
+namespace slae_project
 {
     public class Program
     {
@@ -33,7 +34,7 @@ namespace _5sem_4islemetod_RGR
                 I.Greetings();
                 Sub_Main();
                 I.SaySomeQuote();
-                I.Pause();
+                //I.Pause();
             }
             public Finite_Element_Method(int X_count_next, int Y_count_next, int new_order_of_file)
             {
@@ -47,7 +48,7 @@ namespace _5sem_4islemetod_RGR
                 I.Greetings();
                 Sub_Main();
                 I.SaySomeQuote();
-                I.Pause();
+                //I.Pause();
             }
             public static int order_of_file = 1;
             static bool boundary_left_1_type = true;
@@ -1422,6 +1423,32 @@ namespace _5sem_4islemetod_RGR
                     Save_vector(X_sparse, "dd84ai_RGR_output_X0_sparse_Straight_LU.txt");
                     Show_three_elements_from_vector(X_sparse);
                 }
+
+                List<List<double>> answer = new List<List<double>>();
+                for (int i = 0; i < r_y.Count(); i++)
+                {
+                    answer.Add(new List<double>());
+                    for (int j = 0; j < r_x.Count(); j++)
+                    {
+                        answer[i].Add(0);
+                    }
+                }
+                //Теперь надо инвентировано X_sparse переписать в answer
+
+                int counter = 0;
+                for (int i = 0; i < r_y.Count(); i++)
+                {
+                    for (int j = 0; j < r_x.Count(); j++)
+                    {
+                        answer[i][j] = X_sparse[counter];
+                        counter++;
+                    }
+                }
+
+                SharpGL_limbo.List_Of_Objects.Add(new GraphicData.GraphicObject("Answer", answer));
+                SharpGL_limbo.Refresh_Window();
+                SharpGL_limbo.SharpGL_Open();
+
 #endif
 
 #if (Defined_sparse_MSG_is_online)
@@ -1451,10 +1478,19 @@ namespace _5sem_4islemetod_RGR
 
         static void Main()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            SharpGL_limbo.SharpGL_Open_hidden();
+
             Finite_Element_Method W1 = new Finite_Element_Method();
             //Finite_Element_Method W1 = new Finite_Element_Method(1 + x_counting, y_counting, 1);
             //Finite_Element_Method W2 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting,2.0)),Convert.ToInt32(Math.Pow(y_counting,2.0)),2);
             //Finite_Element_Method W3 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting, 3.0)), Convert.ToInt32(Math.Pow(y_counting, 3.0)), 3);
+
+            Application.Run();
+
+            //Console.ReadKey();
         }
         class Interface
         {
