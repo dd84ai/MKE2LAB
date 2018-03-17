@@ -457,12 +457,12 @@ namespace _5sem_4islemetod_RGR
                 G_right[2, 0] = -2; G_right[2, 1] = -1; G_right[2, 2] = 2; G_right[2, 3] = 1;
                 G_right[3, 0] = -1; G_right[3, 1] = -2; G_right[3, 2] = 1; G_right[3, 3] = 2;
             }
-            void G_filling(double hx, double hy)
+            void G_filling(double hx, double hy, double value)
             {
                 for (int i = 0; i < 4; i++)
                     for (int j = 0; j < 4; j++)
                     {
-                        G[i, j] = ((Lyambda * hy) / (6 * hx)) * (G_left[i, j] + G_right[i, j]);
+                        G[i, j] = (((1/value) * hy) / (6 * hx)) * (G_left[i, j] + G_right[i, j]);
                     }
             }
             void M_filling_default()
@@ -471,6 +471,10 @@ namespace _5sem_4islemetod_RGR
                 M_default[1, 0] = 2; M_default[1, 1] = 4; M_default[1, 2] = 1; M_default[1, 3] = 2;
                 M_default[2, 0] = 2; M_default[2, 1] = 1; M_default[2, 2] = 4; M_default[2, 3] = 2;
                 M_default[3, 0] = 1; M_default[3, 1] = 2; M_default[3, 2] = 2; M_default[3, 3] = 4;
+
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        M[i, j] = 0;
             }
             void M_filling(double hx, double hy)
             {
@@ -480,12 +484,12 @@ namespace _5sem_4islemetod_RGR
                         M[i, j] = ((Gamma * hx * hy) / (36)) * (M_default[i, j]);
                     }
             }
-            void b_filling(double hx, double hy, int ind_x, int ind_y)
+            void b_filling(double hx, double hy, double value)
             {
-                double f1 = f(X[ind_x], Y[ind_y]);
-                double f2 = f(X[ind_x + 1], Y[ind_y]);
-                double f3 = f(X[ind_x], Y[ind_y + 1]);
-                double f4 = f(X[ind_x + 1], Y[ind_y + 1]);
+                double f1 = value;
+                double f2 = value;
+                double f3 = value;
+                double f4 = value;
 
                 b[0] = (hx * hy / 36) * (4 * f1 + 2 * f2 + 2 * f3 + f4);
                 b[1] = (hx * hy / 36) * (2 * f1 + 4 * f2 + f3 + 2 * f4);
@@ -648,24 +652,25 @@ namespace _5sem_4islemetod_RGR
                     F_sparse[i] = 0;
                 }
             }
-            void A_and_F_filling__sparse_vers(int i_in, int j_in) //local i,j
+            void A_and_F_filling__sparse_vers(int nvtr_i) //local i,j
             {
                 //4 икса на 3 игрека.
                 //Сколько иксов в ряду? = 4.
                 //i + (j+1)*(X.Count(), (i + 1) + (j+1)*(X.Count()
                 //i + (j)*(X.Count(), (i + 1)   + (j)*(X.Count()
-                int[] ind = new int[4];
-                ind[0] = i_in + (j_in) * (X.Count());
-                ind[1] = (i_in + 1) + (j_in) * (X.Count());
-                ind[2] = i_in + (j_in + 1) * (X.Count());
-                ind[3] = (i_in + 1) + (j_in + 1) * (X.Count());
+
+                //int[] ind = new int[4];
+                //ind[0] = nvtr[nvtr_i][0];
+                //ind[1] = nvtr[nvtr_i][1];
+                //ind[2] = nvtr[nvtr_i][2];
+                //ind[3] = nvtr[nvtr_i][3];
 
                 //A
                 for (int k = 0; k < 4; k++)
                     for (int m = 0; m < 4; m++)
                     {
-                        int i = ind[k];
-                        int j = ind[m];
+                        int i = nvtr[nvtr_i][k];
+                        int j = nvtr[nvtr_i][m];
                         double value = G[k, m] + M[k, m];
 
                         if (i == j) Ggd[i] += value;
@@ -674,7 +679,7 @@ namespace _5sem_4islemetod_RGR
                     }
                 //F
                 for (int k = 0; k < 4; k++)
-                    F_sparse[ind[k]] += b[k];
+                    F_sparse[nvtr[nvtr_i][k]] += b[k];
             }
             static bool internal_adjusting_of_boundaries__sparse_vers(int j)
             {
@@ -781,20 +786,21 @@ namespace _5sem_4islemetod_RGR
 
                 A_and_F_by_default_zero__sparse_vers(); // new adition
 
-                for (int i = 0; i < X.Count() - 1; i++)
-                    for (int j = 0; j < Y.Count() - 1; j++)
+                //for (int i = 0; i < X.Count() - 1; i++)
+                    //for (int j = 0; j < Y.Count() - 1; j++)
+                    for (int i = 0; i < nvtr.Count(); i++)
                     {
-                        double hx = X[i + 1] - X[i];
-                        double hy = Y[j + 1] - Y[j];
+                        double hx = rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][0]][0];
+                        double hy = rz_xy[nvtr[i][0]][1] - rz_xy[nvtr[i][2]][1];
                         //Console.WriteLine("hx = {0}, hy = {1}", hx, hy);
-                        G_filling(hx, hy); if (debug) Show_matrix(G);
-                        M_filling(hx, hy); if (debug) Show_matrix(M);
-                        b_filling(hx, hy, i, j); if (debug) Show_vector(b);
+                        G_filling(hx, hy, mu[nvkat2d[i][0]].Doubler); if (debug) Show_matrix(G);
+                        //M_filling(hx, hy); if (debug) Show_matrix(M);
+                        b_filling(hx, hy, toku[nvkat2d[i][0]].Doubler); if (debug) Show_vector(b);
 
 //#if (Defined_Dense_Matrix_is_online)
                         //A_and_F_filling(i, j); if (debug) Show_matrix(A);
 //#endif
-                        A_and_F_filling__sparse_vers(i, j);
+                        A_and_F_filling__sparse_vers(i);
                     }
 
                 if (debug) Show_vector(F);
