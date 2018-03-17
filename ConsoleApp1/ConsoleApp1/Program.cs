@@ -1440,7 +1440,7 @@ namespace slae_project
                 {
                     for (int j = 0; j < r_x.Count(); j++)
                     {
-                        answer[i][j] = X_sparse[counter];
+                        answer[r_y.Count()-1 - i][j] = X_sparse[counter];
                         counter++;
                     }
                 }
