@@ -1299,6 +1299,33 @@ namespace slae_project
                 }
             }
             public int kuzlov = 0, ktr = 0, kt1 = 0;
+            public void Call_the_Graphic_Window()
+            {
+                List<List<double>> answer = new List<List<double>>();
+                for (int i = 0; i < r_y.Count(); i++)
+                {
+                    answer.Add(new List<double>());
+                    for (int j = 0; j < r_x.Count(); j++)
+                    {
+                        answer[i].Add(0);
+                    }
+                }
+                //Теперь надо инвентировано X_sparse переписать в answer
+
+                int counter = 0;
+                for (int i = 0; i < r_y.Count(); i++)
+                {
+                    for (int j = 0; j < r_x.Count(); j++)
+                    {
+                        answer[r_y.Count() - 1 - i][j] = X_sparse[counter];
+                        counter++;
+                    }
+                }
+
+                SharpGL_limbo.List_Of_Objects.Add(new GraphicData.GraphicObject("Answer", answer));
+                SharpGL_limbo.Refresh_Window();
+                SharpGL_limbo.SharpGL_Open();
+            }
             void Sub_Main()
             {
 
@@ -1424,30 +1451,9 @@ namespace slae_project
                     Show_three_elements_from_vector(X_sparse);
                 }
 
-                List<List<double>> answer = new List<List<double>>();
-                for (int i = 0; i < r_y.Count(); i++)
-                {
-                    answer.Add(new List<double>());
-                    for (int j = 0; j < r_x.Count(); j++)
-                    {
-                        answer[i].Add(0);
-                    }
-                }
-                //Теперь надо инвентировано X_sparse переписать в answer
 
-                int counter = 0;
-                for (int i = 0; i < r_y.Count(); i++)
-                {
-                    for (int j = 0; j < r_x.Count(); j++)
-                    {
-                        answer[r_y.Count()-1 - i][j] = X_sparse[counter];
-                        counter++;
-                    }
-                }
-
-                SharpGL_limbo.List_Of_Objects.Add(new GraphicData.GraphicObject("Answer", answer));
-                SharpGL_limbo.Refresh_Window();
-                SharpGL_limbo.SharpGL_Open();
+                Call_the_Graphic_Window();
+                
 
 #endif
 
