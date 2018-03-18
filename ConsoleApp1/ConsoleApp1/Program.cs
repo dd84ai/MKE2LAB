@@ -1618,9 +1618,13 @@ namespace slae_project
                     if (fileEntries.Count() != 0 && fileEntries[Choice].Contains(".wav"))
                         if (true)
                         {
-                            Colorator("Activating music file: " + fileEntries[Choice], ConsoleColor.Yellow);
+                            //Colorator("Activating music file: " + fileEntries[Choice], ConsoleColor.Yellow);
                             System.Media.SoundPlayer sp = new System.Media.SoundPlayer(fileEntries[Choice]);
-                            try { sp.Play(); Colorator("Music file " + fileEntries[Choice] + " has been found. ", ConsoleColor.Green); }
+                            try {
+                                sp.Play();
+                                string [] spliited = fileEntries[Choice].Split('\\');
+                                Colorator("Music file " + spliited[spliited.Count() - 1] + " has been activated. ", ConsoleColor.Green);
+                            }
                             catch (Exception)
                             {
                                 Console.WriteLine();
