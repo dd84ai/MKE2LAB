@@ -13,6 +13,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;//files
 using System.Windows.Forms;
+using System.Drawing;
 namespace slae_project
 {
     public class Program
@@ -1326,6 +1327,82 @@ namespace slae_project
                 SharpGL_limbo.Refresh_Window();
                 SharpGL_limbo.SharpGL_Open();
             }
+            bool CalculatePreciseThing(double x, double y, ref double Answer)
+            {
+                bool found = false; int i = 0;
+
+                double old1 = 0, old2 = 0;
+                for (; i < nvtr.Count; i++)
+                {
+                    //nvtr[i][2]] nvtr[i][1]]
+
+                    //double left_X = rz_xy[nvtr[i][2]][0];
+                    //double right_X = rz_xy[nvtr[i][1]][0];
+                    //double left_Y = rz_xy[nvtr[i][2]][1];
+                    //double right_Y = rz_xy[nvtr[i][1]][1];
+
+                    if (x > rz_xy[nvtr[i][2]][0]
+                        && x < rz_xy[nvtr[i][1]][0])
+                        if (y > rz_xy[nvtr[i][2]][1]
+                        && y < rz_xy[nvtr[i][1]][1])
+                        {
+                            found = true; break;
+                        }
+                }
+                if (found) {
+
+                    //81, 82, 0, 1
+                    //left-top, right-top, left-bottom, right-bottom;
+                    //
+
+                    double hx = rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][2]][0];
+                    double hy = rz_xy[nvtr[i][1]][1] - rz_xy[nvtr[i][2]][1];
+
+                    double X1 = (rz_xy[nvtr[i][1]][0] - x) / hx;
+                    double X2 = (x - rz_xy[nvtr[i][2]][0]) / hx;
+                    double Y1 = (rz_xy[nvtr[i][1]][1] - y) / hy;
+                    double Y2 = (y - rz_xy[nvtr[i][2]][1]) / hy;
+
+                    Answer = 0;
+                    Answer += X_sparse[nvtr[i][2]] * X1 * Y1;
+                    Answer += X_sparse[nvtr[i][3]] * X2 * Y1;
+                    Answer += X_sparse[nvtr[i][0]] * X1 * Y2;
+                    Answer += X_sparse[nvtr[i][1]] * X2 * Y2;
+
+                    /*Console.WriteLine("left-bottom = \t{0};{1}", rz_xy[nvtr[i][2]][0], rz_xy[nvtr[i][2]][1]);
+                    Console.WriteLine("right-bottom = \t{0};{1}", rz_xy[nvtr[i][3]][0], rz_xy[nvtr[i][3]][1]);
+                    Console.WriteLine("left-top = \t{0};{1}", rz_xy[nvtr[i][0]][0], rz_xy[nvtr[i][0]][1]);
+                    Console.WriteLine("right-top = \t{0};{1}", rz_xy[nvtr[i][1]][0], rz_xy[nvtr[i][1]][1]);
+                    Console.WriteLine("x-y = \t{0};{1}", x,y);
+
+                    Console.WriteLine("left-bottom = \t{0}", X_sparse[nvtr[i][2]]);
+                    Console.WriteLine("right-bottom = \t{0}", X_sparse[nvtr[i][3]]);
+                    Console.WriteLine("left-top = \t{0}", X_sparse[nvtr[i][0]]);
+                    Console.WriteLine("right-top = \t{0}", X_sparse[nvtr[i][1]]);
+                    Console.WriteLine("value = \t{0}", Answer);*/
+
+                    return true; }
+                else return false;
+            }
+            List<List<double>> points = new List<List<double>>();
+            public void readPointsFile()
+            {
+                string Path = ProjectPath + "\\" + "Telma" + "\\" + "Point";
+                using (StreamReader inputFile = new StreamReader(Path))
+                {
+                    string ReadLiner = inputFile.ReadLine();
+                    while ((ReadLiner = inputFile.ReadLine()) != null)
+                    {
+
+                        ReadLiner = RemoveExtraSpaces(ReadLiner);
+                        string[] Splitted = ReadLiner.Split(' ');
+
+                        points.Add(new List<double>());
+                        points[points.Count() - 1].Add(Convert.ToDouble(Splitted[0]));
+                        points[points.Count() - 1].Add(Convert.ToDouble(Splitted[1]));
+                    }
+                }
+            }
             void Sub_Main()
             {
 
@@ -1452,7 +1529,15 @@ namespace slae_project
                 }
 
 
-                Call_the_Graphic_Window();
+                readPointsFile();
+
+                double Thing = 0;
+                for (int i = 0; i < points.Count();i++)
+                    if (CalculatePreciseThing(points[i][0], points[i][1], ref Thing))
+                        Console.WriteLine("PreciseValue #{0} = {1}",i,Thing);
+                        else Console.WriteLine("Wring Coordinates");
+
+                        Call_the_Graphic_Window();
                 
 
 #endif
