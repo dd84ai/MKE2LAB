@@ -649,7 +649,6 @@ namespace slae_project
             double[] F_sparse;
             double[] Y_sparse; //for Ax=F
             double[] X_sparse;
-            double[] absB;
             int Size_sparse = Math.Max(X_count, Y_count) + 1; //Half size of tape
             void A_and_F_by_default_zero__sparse_vers()
             {
@@ -1395,145 +1394,141 @@ namespace slae_project
                     }
                     else
                     {
-                        Answer = absB[i];
+                        double hx = Math.Abs(rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][2]][0]);
+                        double hy = Math.Abs(rz_xy[nvtr[i][1]][1] - rz_xy[nvtr[i][2]][1]);
+
+                        double X1 = (-1) / hx;
+                        double X2 = (1) / hx;
+                        double Y1 = (rz_xy[nvtr[i][1]][1] - y) / hy;
+                        double Y2 = (y - rz_xy[nvtr[i][2]][1]) / hy;
+
+                        Answer = 0;
+                        Answer += X_sparse[nvtr[i][2]] * X1 * Y1;
+                        Answer += X_sparse[nvtr[i][3]] * X2 * Y1;
+                        Answer += X_sparse[nvtr[i][0]] * X1 * Y2;
+                        Answer += X_sparse[nvtr[i][1]] * X2 * Y2;
+
+                        double Az_Ax = Answer;
+
+                        X1 = (rz_xy[nvtr[i][1]][0] - x) / hx;
+                        X2 = (x - rz_xy[nvtr[i][2]][0]) / hx;
+                        Y1 = (-1) / hy;
+                        Y2 = (1) / hy;
+
+                        double Az_Ay = 0;
+                        //81 82 0 1
+
+                        Az_Ay = 0;
+                        Az_Ay += X_sparse[nvtr[i][2]] * X1 * Y1;
+                        Az_Ay += X_sparse[nvtr[i][3]] * X2 * Y1;
+                        Az_Ay += X_sparse[nvtr[i][0]] * X1 * Y2;
+                        Az_Ay += X_sparse[nvtr[i][1]] * X2 * Y2;
+
+                        Answer = Math.Sqrt(Az_Ax * Az_Ax + Az_Ay * Az_Ay);
                     }
                     return true;
-                    
+
                 }
                 else return false;
             }
             List<List<double>> points = new List<List<double>>();
-            public void AbsB(ref double[] vectorAbsB)
+            public void readPointsFile()
             {
-                //double[] absB = new double[nvtr.Count()];
-                for (int i = 0; i < nvtr.Count(); i++)
+                string Path = ProjectPath + "\\" + "Telma" + "\\" + "Point";
+                using (StreamReader inputFile = new StreamReader(Path))
                 {
-                    
-                    vectorAbsB[i] = 0;
-                    
-                    //81, 82, 0, 1
-                    //left-top, right-top, left-bottom, right-bottom;
-                    double hx = Math.Abs(rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][0]][0]);
-                    double hy = Math.Abs(rz_xy[nvtr[i][0]][1] - rz_xy[nvtr[i][2]][1]);
-                    G_filling_unicorn(hx, hy);
-                    double area = hx * hy;
-
-                    int[] massiv = new int[4];
-                    massiv[0] = nvtr[i][0];
-                    massiv[1] = nvtr[i][1];
-                    massiv[2] = nvtr[i][2];
-                    massiv[3] = nvtr[i][3];
-
-                    for (int k = 0; k < 4; k++)
+                    string ReadLiner = inputFile.ReadLine();
+                    while ((ReadLiner = inputFile.ReadLine()) != null)
                     {
-                        for (int j = 0; j < 4; j++)
-                        {
-                            vectorAbsB[i] += G[k, j] * X_sparse[massiv[j]] * X_sparse[massiv[k]];
-                        }
 
+                        ReadLiner = RemoveExtraSpaces(ReadLiner);
+                        string[] Splitted = ReadLiner.Split(' ');
+
+                        points.Add(new List<double>());
+                        points[points.Count() - 1].Add(Convert.ToDouble(Splitted[0]));
+                        points[points.Count() - 1].Add(Convert.ToDouble(Splitted[1]));
                     }
-                    vectorAbsB[i] = Math.Sqrt(vectorAbsB[i] / area);
-
                 }
             }
-        public void readPointsFile()
-        {
-            string Path = ProjectPath + "\\" + "Telma" + "\\" + "Point";
-            using (StreamReader inputFile = new StreamReader(Path))
+            void Sub_Main()
             {
-                string ReadLiner = inputFile.ReadLine();
-                while ((ReadLiner = inputFile.ReadLine()) != null)
-                {
-
-                    ReadLiner = RemoveExtraSpaces(ReadLiner);
-                    string[] Splitted = ReadLiner.Split(' ');
-
-                    points.Add(new List<double>());
-                    points[points.Count() - 1].Add(Convert.ToDouble(Splitted[0]));
-                    points[points.Count() - 1].Add(Convert.ToDouble(Splitted[1]));
-                }
-            }
-        }
-        void Sub_Main()
-        {
 
 
-            //Шаг нулевой. Считывание среды
-            areas.reading_sreda();
+                //Шаг нулевой. Считывание среды
+                areas.reading_sreda();
 
-            //List<List<int>> nvtr = new List<List<int>>();
-            //List<List<int>> nvkat2d = new List<List<int>>();
-            //List<List<double>> rz_xy = new List<List<double>>();
-            //List<List<int>> l1 = new List<List<int>>();
-            //Шаг ноль с половинкой. Считывание телмы.
+                //List<List<int>> nvtr = new List<List<int>>();
+                //List<List<int>> nvkat2d = new List<List<int>>();
+                //List<List<double>> rz_xy = new List<List<double>>();
+                //List<List<int>> l1 = new List<List<int>>();
+                //Шаг ноль с половинкой. Считывание телмы.
 
-            readNumber("inf2tr.dat", "kuzlov=", ref kuzlov);
-            readNumber("inf2tr.dat", "ktr=", ref ktr);
-            readNumber("inf2tr.dat", "kt1=", ref kt1);
-            I.Colorator("inf2tr.dat has been read.", ConsoleColor.Green);
+                readNumber("inf2tr.dat", "kuzlov=", ref kuzlov);
+                readNumber("inf2tr.dat", "ktr=", ref ktr);
+                readNumber("inf2tr.dat", "kt1=", ref kt1);
+                I.Colorator("inf2tr.dat has been read.", ConsoleColor.Green);
 
-            readBinary("nvtr.dat", ktr, 6, 2, nvtr);
-            absB  = new double[nvtr.Count];
-            readBinary("nvkat2d.dat", ktr, 1, 0, nvkat2d);
-            readBinary("l1.dat", kt1, 1, 0, l1);
-            readBinary("rz.dat", kuzlov, 2, 0, null, rz_xy);
-            I.Colorator("nvtr.dat and e.t.c. have been read.", ConsoleColor.Green);
+                readBinary("nvtr.dat", ktr, 6, 2, nvtr);
+                readBinary("nvkat2d.dat", ktr, 1, 0, nvkat2d);
+                readBinary("l1.dat", kt1, 1, 0, l1);
+                readBinary("rz.dat", kuzlov, 2, 0, null, rz_xy);
+                I.Colorator("nvtr.dat and e.t.c. have been read.", ConsoleColor.Green);
 
-            readTextedFile("mu", 2, 0, mu);
-            readTextedFile("toku", 2, 0, toku);
-            I.Colorator("mu & toku.dat have been read.", ConsoleColor.Green);
+                readTextedFile("mu", 2, 0, mu);
+                readTextedFile("toku", 2, 0, toku);
+                I.Colorator("mu & toku.dat have been read.", ConsoleColor.Green);
 
-            //Считываем Оси
-            readBinary("r.dat", Int32.MaxValue, 1, 0, null, r_x);
-            readBinary("z.dat", Int32.MaxValue, 1, 0, null, r_y);
+                //Считываем Оси
+                readBinary("r.dat", Int32.MaxValue, 1, 0, null, r_x);
+                readBinary("z.dat", Int32.MaxValue, 1, 0, null, r_y);
 
-            //Находим их лимит в соответствии с границей от
-            //rz_xy послед числа
-            int limit1 = 0;
-            for (int i = 0; i < r_x.Count(); i++)
-                if (r_x[i][0] == rz_xy[rz_xy.Count() - 1][0])
-                {
-                    limit1 = i; break;
-                }
+                //Находим их лимит в соответствии с границей от
+                //rz_xy послед числа
+                int limit1 = 0;
+                for (int i = 0; i < r_x.Count(); i++)
+                    if (r_x[i][0] == rz_xy[rz_xy.Count() - 1][0])
+                    {
+                        limit1 = i; break;
+                    }
 
-            int limit2 = 0;
-            for (int i = 0; i < r_x.Count(); i++)
-                if (r_y[i][0] == rz_xy[rz_xy.Count() - 1][1])
-                {
-                    limit2 = i; break;
-                }
+                int limit2 = 0;
+                for (int i = 0; i < r_x.Count(); i++)
+                    if (r_y[i][0] == rz_xy[rz_xy.Count() - 1][1])
+                    {
+                        limit2 = i; break;
+                    }
 
-            limit1++; limit2++;
-            //Считываем заново
-            readBinary("r.dat", limit1, 1, 0, null, r_x);
-            readBinary("z.dat", limit2, 1, 0, null, r_y);
+                limit1++; limit2++;
+                //Считываем заново
+                readBinary("r.dat", limit1, 1, 0, null, r_x);
+                readBinary("z.dat", limit2, 1, 0, null, r_y);
 
-            int test = limit1 * limit2;
-            if (test != rz_xy.Count())
-            { I.Colorator("test != rz_xy.Count()!", ConsoleColor.Red); Console.ReadKey(); }
-            I.Colorator("r.dat & z.dat have been read.", ConsoleColor.Green);
+                int test = limit1 * limit2;
+                if (test != rz_xy.Count())
+                { I.Colorator("test != rz_xy.Count()!", ConsoleColor.Red); Console.ReadKey(); }
+                I.Colorator("r.dat & z.dat have been read.", ConsoleColor.Green);
 
-            //Шаг первый. Сгенерировать данные.
-            generating_OX_OY_lyambda_gamma();
-            I.Colorator("generating_OX_OY_lyambda_gamma();", ConsoleColor.Green);
+                //Шаг первый. Сгенерировать данные.
+                generating_OX_OY_lyambda_gamma();
+                I.Colorator("generating_OX_OY_lyambda_gamma();", ConsoleColor.Green);
 
-            //Шаг второй. Считать эти данные из файла.
-            reading_input_data();
-            I.Colorator("reading_input_data();", ConsoleColor.Green);
+                //Шаг второй. Считать эти данные из файла.
+                reading_input_data();
+                I.Colorator("reading_input_data();", ConsoleColor.Green);
 
 
-            //Шаг третий. Сгенерировать матрицу
-            generating_global_matrix();
+                //Шаг третий. Сгенерировать матрицу
+                generating_global_matrix();
 
-            I.Colorator("generating_global_matrix();", ConsoleColor.Green);
+                I.Colorator("generating_global_matrix();", ConsoleColor.Green);
 
-            //Шаг четвертый. Посчитать СЛАУ.
-            y = new double[Size];
+                //Шаг четвертый. Посчитать СЛАУ.
+                y = new double[Size];
 #if (Defined_Dense_Matrix_is_online)
                 A_tranfroming_into_dense_LU(); if (debug) Show_matrix(A);
 #endif
-            copy_M_to_LUM();
-            I.Colorator("copy_M_to_LUM();", ConsoleColor.Green);
+                copy_M_to_LUM();
+                I.Colorator("copy_M_to_LUM();", ConsoleColor.Green);
 
 #if (Defined_dense_LU_matrix_is_online)
 
@@ -1560,38 +1555,39 @@ namespace slae_project
                     Show_three_elements_from_vector(X0);
                 }
 #endif
-            //Надо ЛУ факторизацию и МСГ метод.
-            //Кратчайшим путем вижу, ЛУ факторизацию
+                //Надо ЛУ факторизацию и МСГ метод.
+                //Кратчайшим путем вижу, ЛУ факторизацию
 #if (Defined_sparse_LU_matrix_is_online)
-            A_sparse_transforming_into_sparse_LU();
-            I.Colorator("A_sparse_transforming_into_sparse_LU();", ConsoleColor.Green);
+                A_sparse_transforming_into_sparse_LU();
+                I.Colorator("A_sparse_transforming_into_sparse_LU();", ConsoleColor.Green);
 
-            //Make_Hilbert_Proud_C_sharp_LU();
-            //Make_Hilbert_Proud_C_plusplus_LU();
+                //Make_Hilbert_Proud_C_sharp_LU();
+                //Make_Hilbert_Proud_C_plusplus_LU();
 
-            Y_sparse = Direct_for_sparse_Ly_F(F_sparse);
-            I.Colorator("Y_sparse = Direct_for_sparse_Ly_F(F_sparse);", ConsoleColor.Green);
-            X_sparse = Reverse_for_sparse_Ux_y(Y_sparse);
-            I.Colorator("X_sparse = Reverse_for_sparse_Ux_y(Y_sparse);", ConsoleColor.Green);
-            Console.WriteLine("Gauss:");
-            if (debug) Show_vector(X_sparse);
-         
-            if (Show_first_three_elements_from_vectors_of_answers)
-            {
-                AbsB(ref absB);
-                Save_vector(X_sparse, "dd84ai_RGR_output_X0_sparse_Straight_LU.txt");
-                Save_vector(absB, "dd84ai_RGR_output_AbsB.txt");
-                Show_three_elements_from_vector(X_sparse);
-            }
+                Y_sparse = Direct_for_sparse_Ly_F(F_sparse);
+                I.Colorator("Y_sparse = Direct_for_sparse_Ly_F(F_sparse);", ConsoleColor.Green);
+                X_sparse = Reverse_for_sparse_Ux_y(Y_sparse);
+                I.Colorator("X_sparse = Reverse_for_sparse_Ux_y(Y_sparse);", ConsoleColor.Green);
+                Console.WriteLine("Gauss:");
+                if (debug) Show_vector(X_sparse);
+#endif
+
+                //X_sparse = X0;
+
+                if (Show_first_three_elements_from_vectors_of_answers)
+                {
+                    Save_vector(X_sparse, "dd84ai_RGR_output_X0_sparse_Straight_LU.txt");
+                    Show_three_elements_from_vector(X_sparse);
+                }
 
 
-            readPointsFile();
+                readPointsFile();
 
-            double Thing = 0;
-            for (int i = 0; i < points.Count(); i++)
-                if (CalculatePreciseThing(points[i][0], points[i][1], ref Thing,true))
-                    Console.WriteLine("PreciseValue #{0} = {1}", i, Thing);
-                else Console.WriteLine("Wring Coordinates");
+                double Thing = 0;
+                for (int i = 0; i < points.Count(); i++)
+                    if (CalculatePreciseThing(points[i][0], points[i][1], ref Thing, true))
+                        Console.WriteLine("PreciseValue #{0} = {1}", i, Thing);
+                    else Console.WriteLine("Wring Coordinates");
 
                 Console.WriteLine("------------------------------------");
 
@@ -1604,7 +1600,7 @@ namespace slae_project
                 Call_the_Graphic_Window();
 
 
-#endif
+
 
 #if (Defined_sparse_MSG_is_online)
                 Console.WriteLine("MSG_LU:");
@@ -1619,129 +1615,129 @@ namespace slae_project
                 }
 #endif
 
-        }
-
-    }
-    static void Show_three_elements_from_vector(double[] Target_vector)
-    {
-        Console.WriteLine("===Vector-begin===");
-        //for (int i = 0; (i < 3) && (i < Target_vector.Count()); i++)
-        for (int i = 0; (i < 6) && (i < Target_vector.Count()); i++)
-            Console.WriteLine("{0:E8}", Target_vector[i]);
-        Console.WriteLine("===Vector-end===");
-    }
-
-    static void Main()
-    {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-
-        SharpGL_limbo.SharpGL_Open_hidden();
-
-        Finite_Element_Method W1 = new Finite_Element_Method();
-        //Finite_Element_Method W1 = new Finite_Element_Method(1 + x_counting, y_counting, 1);
-        //Finite_Element_Method W2 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting,2.0)),Convert.ToInt32(Math.Pow(y_counting,2.0)),2);
-        //Finite_Element_Method W3 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting, 3.0)), Convert.ToInt32(Math.Pow(y_counting, 3.0)), 3);
-
-        Application.Run();
-
-        //Console.ReadKey();
-    }
-    public class Interface
-    {
-        public void Greetings()
-        {
-            Colorator("Yay!", ConsoleColor.Yellow);
-            Colorator("Designation: 5sem_4islemetod_RGR", ConsoleColor.Magenta);
-        }
-        public void Colorator(string str, ConsoleColor color)
-        {
-            //Red,Green,Blue,Magenta,Cyan; example: ConsoleColor.Magenta;
-            Console.ForegroundColor = color; // set text color;
-            Console.WriteLine(str);
-            Console.ResetColor(); // reset to normal text color;
-        }
-        public void Pause()
-        {
-            Colorator("Press Escape to exit.", ConsoleColor.Magenta);
-            Console.ReadKey();
-        }
-        public string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-        public Random random = new Random();
-        public void SaySomeQuote()
-        {
-            string TargetPath = ProjectPath + "\\" + "Music" + "\\";
-
-            if (Directory.Exists(@TargetPath))
-            {
-
-                // Process the list of files found in the directory.
-                var fileEntries = Directory.GetFiles(TargetPath);
-
-                int Choice = random.Next(1, fileEntries.Count());
-                if (fileEntries.Count() != 0 && fileEntries[Choice].Contains(".wav"))
-                    if (true)
-                    {
-                        //Colorator("Activating music file: " + fileEntries[Choice], ConsoleColor.Yellow);
-                        System.Media.SoundPlayer sp = new System.Media.SoundPlayer(fileEntries[Choice]);
-                        try
-                        {
-                            sp.Play();
-                            string[] spliited = fileEntries[Choice].Split('\\');
-                            Colorator("Music file " + spliited[spliited.Count() - 1] + " has been activated. ", ConsoleColor.Green);
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine();
-                            for (int i = 0; i < 3; i++)
-                                Colorator("Music file " + fileEntries[Choice] + " is not found!!! ", ConsoleColor.Red);
-                        }
-
-                    }
             }
-            else
+
+        }
+        static void Show_three_elements_from_vector(double[] Target_vector)
+        {
+            Console.WriteLine("===Vector-begin===");
+            //for (int i = 0; (i < 3) && (i < Target_vector.Count()); i++)
+            for (int i = 0; (i < 6) && (i < Target_vector.Count()); i++)
+                Console.WriteLine("{0:E8}", Target_vector[i]);
+            Console.WriteLine("===Vector-end===");
+        }
+
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            SharpGL_limbo.SharpGL_Open_hidden();
+
+            Finite_Element_Method W1 = new Finite_Element_Method();
+            //Finite_Element_Method W1 = new Finite_Element_Method(1 + x_counting, y_counting, 1);
+            //Finite_Element_Method W2 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting,2.0)),Convert.ToInt32(Math.Pow(y_counting,2.0)),2);
+            //Finite_Element_Method W3 = new Finite_Element_Method(1 + Convert.ToInt32(Math.Pow(x_counting, 3.0)), Convert.ToInt32(Math.Pow(y_counting, 3.0)), 3);
+
+            Application.Run();
+
+            //Console.ReadKey();
+        }
+        public class Interface
+        {
+            public void Greetings()
             {
-                Console.WriteLine();
-                for (int i = 0; i < 3; i++)
-                    Colorator("Folder does not exist!!! ", ConsoleColor.Red);
+                Colorator("Yay!", ConsoleColor.Yellow);
+                Colorator("Designation: 5sem_4islemetod_RGR", ConsoleColor.Magenta);
+            }
+            public void Colorator(string str, ConsoleColor color)
+            {
+                //Red,Green,Blue,Magenta,Cyan; example: ConsoleColor.Magenta;
+                Console.ForegroundColor = color; // set text color;
+                Console.WriteLine(str);
+                Console.ResetColor(); // reset to normal text color;
+            }
+            public void Pause()
+            {
+                Colorator("Press Escape to exit.", ConsoleColor.Magenta);
+                Console.ReadKey();
+            }
+            public string ProjectPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            public Random random = new Random();
+            public void SaySomeQuote()
+            {
+                string TargetPath = ProjectPath + "\\" + "Music" + "\\";
+
+                if (Directory.Exists(@TargetPath))
+                {
+
+                    // Process the list of files found in the directory.
+                    var fileEntries = Directory.GetFiles(TargetPath);
+
+                    int Choice = random.Next(1, fileEntries.Count());
+                    if (fileEntries.Count() != 0 && fileEntries[Choice].Contains(".wav"))
+                        if (true)
+                        {
+                            //Colorator("Activating music file: " + fileEntries[Choice], ConsoleColor.Yellow);
+                            System.Media.SoundPlayer sp = new System.Media.SoundPlayer(fileEntries[Choice]);
+                            try
+                            {
+                                sp.Play();
+                                string[] spliited = fileEntries[Choice].Split('\\');
+                                Colorator("Music file " + spliited[spliited.Count() - 1] + " has been activated. ", ConsoleColor.Green);
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine();
+                                for (int i = 0; i < 3; i++)
+                                    Colorator("Music file " + fileEntries[Choice] + " is not found!!! ", ConsoleColor.Red);
+                            }
+
+                        }
+                }
+                else
+                {
+                    Console.WriteLine();
+                    for (int i = 0; i < 3; i++)
+                        Colorator("Folder does not exist!!! ", ConsoleColor.Red);
+                }
+            }
+            public void Time_pause(int value)
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                while (sw.ElapsedMilliseconds < value)
+                { }
+            }
+
+        }
+        public class data_for_O
+        {
+            public int size;
+            public double t0;
+            public double tn;
+
+            public data_for_O(int size1, double t01, double tn1)
+            {
+                size = size1;
+                t0 = t01;
+                tn = tn1;
             }
         }
-        public void Time_pause(int value)
+        public class data_other
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            while (sw.ElapsedMilliseconds < value)
-            { }
+            static public double Lyambda, Gamma;
         }
-
-    }
-    public class data_for_O
-    {
-        public int size;
-        public double t0;
-        public double tn;
-
-        public data_for_O(int size1, double t01, double tn1)
+        public class data_for_generating : data_other
         {
-            size = size1;
-            t0 = t01;
-            tn = tn1;
+
+            public data_for_generating(double Lyambda1, double Gamma1)
+            {
+                Lyambda = new double();
+                Gamma = new double();
+                Lyambda = Lyambda1;
+                Gamma = Gamma1;
+            }
         }
     }
-    public class data_other
-    {
-        static public double Lyambda, Gamma;
-    }
-    public class data_for_generating : data_other
-    {
-
-        public data_for_generating(double Lyambda1, double Gamma1)
-        {
-            Lyambda = new double();
-            Gamma = new double();
-            Lyambda = Lyambda1;
-            Gamma = Gamma1;
-        }
-    }
-}
 }
