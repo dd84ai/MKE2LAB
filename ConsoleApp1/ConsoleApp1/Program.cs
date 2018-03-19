@@ -464,7 +464,7 @@ namespace slae_project
                 for (int i = 0; i < 4; i++)
                     for (int j = 0; j < 4; j++)
                     {
-                        G[i, j] = (((1/value) * hy) / (6 * hx)) * (G_left[i, j] + G_right[i, j]);
+                        G[i, j] = (((1/(4 * Math.PI * Math.Pow(10, -7) * value)) * hy) / (6 * hx)) * (G_left[i, j] + G_right[i, j]);
                     }
             }
             void M_filling_default()
@@ -792,8 +792,8 @@ namespace slae_project
                     //for (int j = 0; j < Y.Count() - 1; j++)
                     for (int i = 0; i < nvtr.Count(); i++)
                     {
-                        double hx = rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][0]][0];
-                        double hy = rz_xy[nvtr[i][0]][1] - rz_xy[nvtr[i][2]][1];
+                        double hx = Math.Abs(rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][0]][0]);
+                        double hy = Math.Abs(rz_xy[nvtr[i][0]][1] - rz_xy[nvtr[i][2]][1]);
                         //Console.WriteLine("hx = {0}, hy = {1}", hx, hy);
                         G_filling(hx, hy, mu[nvkat2d[i][0]].Doubler); if (debug) Show_matrix(G);
                         //M_filling(hx, hy); if (debug) Show_matrix(M);
@@ -1355,8 +1355,8 @@ namespace slae_project
                     //left-top, right-top, left-bottom, right-bottom;
                     //
 
-                    double hx = rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][2]][0];
-                    double hy = rz_xy[nvtr[i][1]][1] - rz_xy[nvtr[i][2]][1];
+                    double hx = Math.Abs(rz_xy[nvtr[i][1]][0] - rz_xy[nvtr[i][2]][0]);
+                    double hy = Math.Abs(rz_xy[nvtr[i][1]][1] - rz_xy[nvtr[i][2]][1]);
 
                     double X1 = (rz_xy[nvtr[i][1]][0] - x) / hx;
                     double X2 = (x - rz_xy[nvtr[i][2]][0]) / hx;
